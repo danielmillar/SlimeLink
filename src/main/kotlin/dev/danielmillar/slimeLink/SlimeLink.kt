@@ -17,6 +17,10 @@ class SlimeLink : JavaPlugin() {
         }
 
         private val ASP: AdvancedSlimePaperAPI = AdvancedSlimePaperAPI.instance()
+
+        fun getASP(): AdvancedSlimePaperAPI {
+            return ASP
+        }
     }
 
     private lateinit var addon: SkriptAddon
