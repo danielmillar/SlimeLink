@@ -35,7 +35,7 @@ data class WorldData(
     private val environment: World.Environment = World.Environment.NORMAL,
 
     @Setting("worldType")
-    private val worldType: WorldType = WorldType.NORMAL,
+    private val worldType: String = "default",
 
     @Setting("defaultBiome")
     private val defaultBiome: String = "minecraft:plains",
@@ -51,7 +51,7 @@ data class WorldData(
     fun isDragonBattle(): Boolean = dragonBattle
     fun isPvp(): Boolean = pvp
     fun getEnvironment(): World.Environment = environment
-    fun getWorldType(): WorldType = worldType
+    fun getWorldType(): String = worldType
     fun getDefaultBiome(): String = defaultBiome
     fun isReadOnly(): Boolean = readOnly
     fun toPropertyMap(): SlimePropertyMap {
@@ -65,7 +65,7 @@ data class WorldData(
             setValue(DRAGON_BATTLE, dragonBattle)
             setValue(PVP, pvp)
             setValue(ENVIRONMENT, environment.name)
-            setValue(WORLD_TYPE, worldType.name)
+            setValue(WORLD_TYPE, worldType)
             setValue(DEFAULT_BIOME, defaultBiome)
         }
     }
