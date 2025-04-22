@@ -1,7 +1,6 @@
 plugins {
     kotlin("jvm") version "2.2.0-Beta1"
     id("com.gradleup.shadow") version "8.3.0"
-    id("xyz.jpenilla.run-paper") version "2.3.1"
 }
 
 group = "dev.danielmillar"
@@ -15,20 +14,24 @@ repositories {
     maven("https://oss.sonatype.org/content/groups/public/") {
         name = "sonatype"
     }
+    maven("https://repo.skriptlang.org/releases") {
+        name = "skriptlang-repo"
+    }
+    maven("https://repo.infernalsuite.com/repository/maven-snapshots/"){
+        name = "infernal-repo"
+    }
 }
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.5-R0.1-SNAPSHOT")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-}
 
-tasks {
-    runServer {
-        // Configure the Minecraft version for our task.
-        // This is the only required configuration besides applying the plugin.
-        // Your plugin's jar (or shadowJar if present) will be used automatically.
-        minecraftVersion("1.21")
-    }
+    compileOnly("com.github.SkriptLang:Skript:2.11.0")
+
+    compileOnly("com.infernalsuite.asp:api:4.0.0-SNAPSHOT")
+    implementation("com.infernalsuite.asp:loaders:4.0.0-SNAPSHOT")
+
+    implementation("org.spongepowered:configurate-yaml:4.2.0")
 }
 
 val targetJavaVersion = 21
