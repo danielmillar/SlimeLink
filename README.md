@@ -37,7 +37,7 @@
 |                  | Slime world property value             | ❌ To Do       |
 |                  | Slime world read only                  | ❌ To Do       |
 
-> 📢 **Feature Requests:** If you'd like to see additional features added to SlimeLink, please [open an issue](https://github.com/InfernalSuite/SlimeLink/issues) on our GitHub tracker.
+> 📢 **Feature Requests:** If you'd like to see additional features added to SlimeLink, please [open an issue](https://github.com/danielmillar/SlimeLink/issues) on our GitHub tracker.
 
 
 ## Third‑Party Code
