@@ -13,29 +13,29 @@
 
 > ⚠️ **Disclaimer:** While some features have been implemented, SlimeLink is in early development. Bugs may occur, and data loss could happen. Use at your own risk.
 
-| Feature Category | Feature                                | Status        |
-|------------------|----------------------------------------|---------------|
-| **Effects**      | Initialize loaders                     | ✅ Completed  |
-|                  | Create slime world                     | ✅ Completed  |
-|                  | Load slime world                       | ✅ Completed  |
-|                  | Unload slime world by world name       | ✅ Completed  |
-|                  | Save slime world by world name         | ✅ Completed  |
-|                  | Clone slime world                      | ❌ To Do       |
-|                  | Delete slime world by world name       | ❌ To Do       |
-|                  | Unload slime world by world object     | ❌ To Do       |
-|                  | Save slime world by world object       | ❌ To Do       |
-|                  | Delete slime world by world object     | ❌ To Do       |
-| **Expressions**  | Create slime properties                | ✅ Completed  |
-|                  | Fetching slime world                   | ✅ Completed  |
-|                  | Fetch slime properties by world name   | ❌ To Do       |
-|                  | Fetch slime properties by world object | ❌ To Do       |
-|                  | Fetch all slime worlds                 | ❌ To Do       |
-|                  | Modify slime properties map            | ❌ To Do       |
-|                  | Modify slime properties of a world     | ❌ To Do       |
-| **Conditions**   | Slime property value checking          | ❌ To Do       |
-|                  | Slime world loaded                     | ❌ To Do       |
-|                  | Slime world property value             | ❌ To Do       |
-|                  | Slime world read only                  | ❌ To Do       |
+| Feature Category | Feature                                | Status      |
+|------------------|----------------------------------------|-------------|
+| **Effects**      | Initialize loaders                     | ✅ Completed |
+|                  | Create slime world                     | ✅ Completed |
+|                  | Load slime world                       | ✅ Completed |
+|                  | Unload slime world by world name       | ✅ Completed |
+|                  | Save slime world by world name         | ✅ Completed |
+|                  | Clone slime world                      | ❌ To Do     |
+|                  | Delete slime world by world name       | ❌ To Do     |
+|                  | Unload slime world by world object     | ❌ To Do     |
+|                  | Save slime world by world object       | ❌ To Do     |
+|                  | Delete slime world by world object     | ❌ To Do     |
+| **Expressions**  | Create slime properties                | ✅ Completed |
+|                  | Fetching slime world                   | ✅ Completed |
+|                  | Fetch slime properties by world name   | ❌ To Do     |
+|                  | Fetch slime properties by world object | ❌ To Do     |
+|                  | Fetch all slime worlds                 | ❌ To Do     |
+|                  | Modify slime properties map            | ❌ To Do     |
+|                  | Modify slime properties of a world     | ❌ To Do     |
+| **Conditions**   | Slime property value checking          | ❌ To Do     |
+|                  | Slime world loaded                     | ✅ Completed |
+|                  | Slime world property value             | ❌ To Do     |
+|                  | Slime world read only                  | ❌ To Do     |
 
 > 📢 **Feature Requests:** If you'd like to see additional features added to SlimeLink, please [open an issue](https://github.com/danielmillar/SlimeLink/issues) on our GitHub tracker.
 
