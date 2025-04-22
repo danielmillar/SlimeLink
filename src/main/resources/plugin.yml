@@ -1,0 +1,4 @@
+name: SlimeLink
+version: '1.0.0'
+main: dev.danielmillar.slimeLink.SlimeLink
+api-version: '1.21'
