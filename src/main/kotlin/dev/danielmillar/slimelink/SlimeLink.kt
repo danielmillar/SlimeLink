@@ -42,7 +42,7 @@ class SlimeLink : JavaPlugin() {
         addon = Skript.registerAddon(this).setLanguageFileDirectory("lang")
         try {
             Types()
-            addon.loadClasses("dev.danielmillar.slimeLink")
+            addon.loadClasses("dev.danielmillar.slimelink")
         } catch (ex: Exception) {
             slF4JLogger.error("Failed to load Skript classes", ex)
         }
