@@ -1,4 +1,4 @@
-package dev.danielmillar.slimelink.skript.effects
+package dev.danielmillar.slimeLink.skript.effects
 
 import ch.njol.skript.Skript
 import ch.njol.skript.doc.Description
@@ -8,8 +8,8 @@ import ch.njol.skript.lang.Effect
 import ch.njol.skript.lang.Expression
 import ch.njol.skript.lang.SkriptParser
 import ch.njol.util.Kleenean
-import dev.danielmillar.slimelink.slime.SlimeLoaderTypeEnum
-import dev.danielmillar.slimelink.slime.SlimeManager
+import dev.danielmillar.slimeLink.slime.SlimeLoaderTypeEnum
+import dev.danielmillar.slimeLink.slime.SlimeManager
 import org.bukkit.event.Event
 
 @Name("Initialize Loader")
@@ -36,7 +36,7 @@ class EffInitializeLoader : Effect() {
 
             if (!success || SlimeManager.getLoader(loaderTypeValue) == null) {
                 Skript.error(
-                    "An error occurred while trying to initialize Slime Loader. Loader type: $loaderTypeValue"
+                    "An error occurred while trying to initialize Slime Loader. Loader type: ${loaderTypeValue.name.lowercase()}. Make sure this loader is enabled and the credentials are correct, if applicable."
                 )
             }
         } catch (ex: Exception) {

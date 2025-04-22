@@ -1,11 +1,11 @@
-package dev.danielmillar.slimelink
+package dev.danielmillar.slimeLink
 
 import ch.njol.skript.Skript
 import ch.njol.skript.SkriptAddon
 import com.infernalsuite.asp.api.AdvancedSlimePaperAPI
-import dev.danielmillar.slimelink.config.ConfigManager
-import dev.danielmillar.slimelink.platform.ServerPlatform
-import dev.danielmillar.slimelink.skript.Types
+import dev.danielmillar.slimeLink.config.ConfigManager
+import dev.danielmillar.slimeLink.platform.ServerPlatform
+import dev.danielmillar.slimeLink.skript.Types
 import org.bukkit.plugin.java.JavaPlugin
 
 class SlimeLink : JavaPlugin() {

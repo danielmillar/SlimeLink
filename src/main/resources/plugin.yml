@@ -1,6 +1,6 @@
 name: SlimeLink
 version: '1.0.0'
-main: dev.danielmillar.slimelink.SlimeLink
+main: dev.danielmillar.slimeLink.SlimeLink
 api-version: '1.21'
 author: Daniel Millar
 depend:

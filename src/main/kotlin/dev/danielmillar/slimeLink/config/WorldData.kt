@@ -1,4 +1,4 @@
-package dev.danielmillar.slimelink.config
+package dev.danielmillar.slimeLink.config
 
 import com.infernalsuite.asp.api.world.properties.SlimeProperties.*
 import com.infernalsuite.asp.api.world.properties.SlimePropertyMap

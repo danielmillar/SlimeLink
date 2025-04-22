@@ -1,8 +1,8 @@
-package dev.danielmillar.slimelink.skript
+package dev.danielmillar.slimeLink.skript
 
 import ch.njol.skript.classes.EnumClassInfo
 import ch.njol.skript.registrations.Classes
-import dev.danielmillar.slimelink.slime.SlimeLoaderTypeEnum
+import dev.danielmillar.slimeLink.slime.SlimeLoaderTypeEnum
 
 class Types {
 

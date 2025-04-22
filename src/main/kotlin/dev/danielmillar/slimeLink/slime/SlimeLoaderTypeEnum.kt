@@ -1,4 +1,4 @@
-package dev.danielmillar.slimelink.slime
+package dev.danielmillar.slimeLink.slime
 
 enum class SlimeLoaderTypeEnum(val id: String) {
     FILE("file"),

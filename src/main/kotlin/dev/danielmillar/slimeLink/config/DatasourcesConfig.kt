@@ -1,4 +1,4 @@
-package dev.danielmillar.slimelink.config
+package dev.danielmillar.slimeLink.config
 
 import org.spongepowered.configurate.objectmapping.ConfigSerializable
 import org.spongepowered.configurate.objectmapping.meta.Setting
