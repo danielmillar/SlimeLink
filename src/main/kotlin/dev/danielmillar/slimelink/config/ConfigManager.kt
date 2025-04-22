@@ -1,6 +1,6 @@
-package dev.danielmillar.slimeLink.config
+package dev.danielmillar.slimelink.config
 
-import dev.danielmillar.slimeLink.SlimeLink
+import dev.danielmillar.slimelink.SlimeLink
 import io.leangen.geantyref.TypeToken
 import org.spongepowered.configurate.loader.HeaderMode
 import org.spongepowered.configurate.yaml.NodeStyle

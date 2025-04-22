@@ -1,11 +1,11 @@
-package dev.danielmillar.slimeLink.slime
+package dev.danielmillar.slimelink.slime
 
 import com.infernalsuite.asp.api.loaders.SlimeLoader
 import com.infernalsuite.asp.loaders.file.FileLoader
 import com.infernalsuite.asp.loaders.mongo.MongoLoader
 import com.infernalsuite.asp.loaders.mysql.MysqlLoader
 import com.mongodb.MongoException
-import dev.danielmillar.slimeLink.config.ConfigManager
+import dev.danielmillar.slimelink.config.ConfigManager
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.sql.SQLException

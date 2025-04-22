@@ -1,4 +1,4 @@
-package dev.danielmillar.slimeLink.skript.effects
+package dev.danielmillar.slimelink.skript.effects
 
 import ch.njol.skript.Skript
 import ch.njol.skript.doc.Description
@@ -9,10 +9,9 @@ import ch.njol.skript.lang.Effect
 import ch.njol.skript.lang.Expression
 import ch.njol.skript.lang.SkriptParser
 import ch.njol.util.Kleenean
-import dev.danielmillar.slimeLink.SlimeLink
-import dev.danielmillar.slimeLink.config.ConfigManager
-import dev.danielmillar.slimeLink.slime.SlimeLoaderTypeEnum
-import dev.danielmillar.slimeLink.slime.SlimeManager
+import dev.danielmillar.slimelink.SlimeLink
+import dev.danielmillar.slimelink.config.ConfigManager
+import dev.danielmillar.slimelink.slime.SlimeLoaderTypeEnum
 import org.bukkit.Bukkit
 import org.bukkit.event.Event
 import java.util.concurrent.CompletableFuture

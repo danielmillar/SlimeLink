@@ -1,4 +1,4 @@
-package dev.danielmillar.slimeLink.config
+package dev.danielmillar.slimelink.config
 
 import org.slf4j.LoggerFactory
 import org.spongepowered.configurate.objectmapping.ConfigSerializable

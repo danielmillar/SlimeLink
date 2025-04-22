@@ -1,4 +1,4 @@
-package dev.danielmillar.slimeLink.skript.expressions
+package dev.danielmillar.slimelink.skript.expressions
 
 import ch.njol.skript.Skript
 import ch.njol.skript.doc.Description

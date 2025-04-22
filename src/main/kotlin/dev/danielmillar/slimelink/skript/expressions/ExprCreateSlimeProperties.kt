@@ -1,4 +1,4 @@
-package dev.danielmillar.slimeLink.skript.expressions
+package dev.danielmillar.slimelink.skript.expressions
 
 import ch.njol.skript.Skript
 import ch.njol.skript.doc.Description
@@ -11,7 +11,7 @@ import ch.njol.skript.lang.SkriptParser
 import ch.njol.skript.lang.util.SimpleExpression
 import ch.njol.util.Kleenean
 import com.infernalsuite.asp.api.world.properties.SlimePropertyMap
-import dev.danielmillar.slimeLink.slime.SlimePropertiesEnum
+import dev.danielmillar.slimelink.slime.SlimePropertiesEnum
 import org.bukkit.event.Event
 
 @Name("Create Slime Properties")

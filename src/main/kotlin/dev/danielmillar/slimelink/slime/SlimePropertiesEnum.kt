@@ -1,8 +1,7 @@
-package dev.danielmillar.slimeLink.slime
+package dev.danielmillar.slimelink.slime
 
 import com.infernalsuite.asp.api.world.properties.SlimeProperties
 import com.infernalsuite.asp.api.world.properties.SlimeProperty
-import net.kyori.adventure.nbt.BinaryTag
 
 enum class SlimePropertiesEnum(val prop: SlimeProperty<*, *>, val dataType: String) {
     SPAWN_X(SlimeProperties.SPAWN_X, "Integer"),

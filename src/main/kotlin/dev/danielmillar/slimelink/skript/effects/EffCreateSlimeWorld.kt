@@ -1,4 +1,4 @@
-package dev.danielmillar.slimeLink.skript.effects
+package dev.danielmillar.slimelink.skript.effects
 
 import ch.njol.skript.Skript
 import ch.njol.skript.doc.Description
@@ -12,11 +12,11 @@ import ch.njol.util.Kleenean
 import com.infernalsuite.asp.api.exceptions.UnknownWorldException
 import com.infernalsuite.asp.api.exceptions.WorldAlreadyExistsException
 import com.infernalsuite.asp.api.world.properties.SlimePropertyMap
-import dev.danielmillar.slimeLink.SlimeLink
-import dev.danielmillar.slimeLink.config.ConfigManager
-import dev.danielmillar.slimeLink.config.WorldData
-import dev.danielmillar.slimeLink.slime.SlimeLoaderTypeEnum
-import dev.danielmillar.slimeLink.slime.SlimeManager
+import dev.danielmillar.slimelink.SlimeLink
+import dev.danielmillar.slimelink.config.ConfigManager
+import dev.danielmillar.slimelink.config.WorldData
+import dev.danielmillar.slimelink.slime.SlimeLoaderTypeEnum
+import dev.danielmillar.slimelink.slime.SlimeManager
 import org.bukkit.Bukkit
 import org.bukkit.event.Event
 import java.io.IOException

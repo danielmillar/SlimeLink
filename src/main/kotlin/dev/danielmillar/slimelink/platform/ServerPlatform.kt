@@ -1,4 +1,4 @@
-package dev.danielmillar.slimeLink.platform
+package dev.danielmillar.slimelink.platform
 
 enum class ServerPlatform(private val detectClasses: List<String>) {
     PURPUR(listOf("org.purpurmc.purpur.PurpurConfig")),

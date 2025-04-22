@@ -1,4 +1,4 @@
-package dev.danielmillar.slimeLink.skript
+package dev.danielmillar.slimelink.skript
 
 import ch.njol.skript.classes.ClassInfo
 import ch.njol.skript.classes.EnumClassInfo
@@ -9,8 +9,8 @@ import ch.njol.skript.registrations.Classes
 import ch.njol.yggdrasil.Fields
 import com.infernalsuite.asp.api.world.properties.SlimeProperties
 import com.infernalsuite.asp.api.world.properties.SlimePropertyMap
-import dev.danielmillar.slimeLink.slime.SlimeLoaderTypeEnum
-import dev.danielmillar.slimeLink.slime.SlimePropertiesEnum
+import dev.danielmillar.slimelink.slime.SlimeLoaderTypeEnum
+import dev.danielmillar.slimelink.slime.SlimePropertiesEnum
 
 class Types {
 

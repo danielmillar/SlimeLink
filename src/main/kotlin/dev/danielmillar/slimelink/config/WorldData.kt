@@ -1,10 +1,9 @@
-package dev.danielmillar.slimeLink.config
+package dev.danielmillar.slimelink.config
 
 import com.infernalsuite.asp.api.world.properties.SlimeProperties.*
 import com.infernalsuite.asp.api.world.properties.SlimePropertyMap
 import org.bukkit.Difficulty
 import org.bukkit.World
-import org.bukkit.WorldType
 import org.spongepowered.configurate.objectmapping.ConfigSerializable
 import org.spongepowered.configurate.objectmapping.meta.Setting
 
