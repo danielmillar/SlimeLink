@@ -43,6 +43,10 @@ tasks.build {
     dependsOn("shadowJar")
 }
 
+tasks.named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar") {
+    archiveClassifier.set("")
+}
+
 tasks.processResources {
     val props = mapOf("version" to version)
     inputs.properties(props)
