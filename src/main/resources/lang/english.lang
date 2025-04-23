@@ -8,3 +8,17 @@ slime loaders:
     file: file
     mysql: mysql
     mongodb: mongodb
+
+slime properties:
+    spawn_x: spawnx, spawn x
+    spawn_y: spawny, spawn y
+    spawn_z: spawnz, spawn z
+    spawn_yaw: spawnyaw, spawn yaw
+    difficulty: difficulty
+    allow_monsters: allowmonsters, allow monsters
+    allow_animals: allowanimals, allow animals
+    dragon_battle: dragonbattle, dragon battle
+    pvp: pvp
+    environment: environment
+    world_type: worldtype, world type
+    default_biome: defaultbiome, default biome
