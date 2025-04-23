@@ -16,8 +16,12 @@ import org.bukkit.event.Event
 @Description("Checks if the specified world is readonly or not.")
 @Examples(
     value = [
-        "if slime world named \"exampleWorld\" is readonly",
-        "if slime world named \"exampleWorld\" isn't readonly"
+        "if slime world named \"exampleWorld\" is readonly:",
+        "    broadcast \"World is read-only!\"",
+        "if slime world named \"testWorld\" isn't readonly:",
+        "    broadcast \"World can be modified!\"",
+        "if slime world named \"anotherWorld\" is not readonly:",
+        "    broadcast \"World can be modified!\""
     ]
 )
 @Since("1.0.0")

@@ -23,7 +23,9 @@ import kotlin.system.measureTimeMillis
 @Description("Save a Slime World with a specified name.")
 @Examples(
     value = [
-        "save slime world named \"Test\" with type %file%"
+        "save slimeworld named \"Test\" with type %file%",
+        "save slime world named \"MyWorld\" with %file%",
+        "save slimeworld named \"ServerWorld\" with type %mysql%"
     ]
 )
 @Since("1.0.0")

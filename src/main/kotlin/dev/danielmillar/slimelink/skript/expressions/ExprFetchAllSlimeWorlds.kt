@@ -17,7 +17,9 @@ import org.bukkit.event.Event
 @Description("List all SlimeWorlds from the config file.")
 @Examples(
     value = [
-        "set {allSlimeWorlds::*} to all slime worlds"
+        "set {allSlimeWorlds::*} to all slimeworlds",
+        "set {worlds::*} to all slime worlds",
+        "broadcast \"Available worlds: %all slime worlds%\""
     ]
 )
 @Since("1.0.0")

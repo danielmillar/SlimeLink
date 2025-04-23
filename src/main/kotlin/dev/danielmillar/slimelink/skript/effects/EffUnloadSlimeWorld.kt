@@ -20,7 +20,8 @@ import java.util.concurrent.CompletableFuture
 @Description("Unload a Slime World with a specified name.")
 @Examples(
     value = [
-        "unload slime world named \"Test\" with type %file%"
+        "unload slimeworld named \"Test\"",
+        "unload slime world named \"MyWorld\""
     ]
 )
 @Since("1.0.0")

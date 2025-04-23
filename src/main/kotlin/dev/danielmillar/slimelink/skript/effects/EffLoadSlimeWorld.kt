@@ -25,7 +25,9 @@ import kotlin.system.measureTimeMillis
 @Description("Load a new Slime World with a specified name.")
 @Examples(
     value = [
-        "load slime world named \"Test\" with type %file%"
+        "load slimeworld named \"Test\" with type %file%",
+        "load slime world named \"MyWorld\" with %file%",
+        "load slimeworld named \"GameWorld\" with type %mysql%"
     ]
 )
 @Since("1.0.0")

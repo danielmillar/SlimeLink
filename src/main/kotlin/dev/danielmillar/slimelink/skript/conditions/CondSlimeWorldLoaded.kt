@@ -16,8 +16,12 @@ import org.bukkit.event.Event
 @Description("Checks if the specified world is loaded or not.")
 @Examples(
     value = [
-        "if slime world named \"exampleWorld\" is loaded",
-        "if slime world named \"exampleWorld\" isn't loaded"
+        "if slime world named \"exampleWorld\" is loaded:",
+        "    broadcast \"World is currently loaded!\"",
+        "if slime world named \"testWorld\" isn't loaded:",
+        "    load slime world named \"testWorld\"",
+        "if slime world named \"anotherWorld\" is not loaded:",
+        "    broadcast \"World needs to be loaded first!\""
     ]
 )
 @Since("1.0.0")

@@ -23,7 +23,9 @@ import kotlin.system.measureTimeMillis
 @Description("Delete a Slime World with a specified name.")
 @Examples(
     value = [
-        "delete slime world named \"Test\" with type %file%"
+        "delete slimeworld named \"Test\" with type %file%",
+        "delete slime world named \"MyWorld\" with %file%",
+        "delete slimeworld named \"OldWorld\" with type %mysql%"
     ]
 )
 @Since("1.0.0")

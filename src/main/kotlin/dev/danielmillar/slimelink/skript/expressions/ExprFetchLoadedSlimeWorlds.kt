@@ -16,10 +16,12 @@ import org.bukkit.Bukkit
 import org.bukkit.event.Event
 
 @Name("Fetch Loaded Slime Worlds")
-@Description("List all loaded SlimeWorlds for a specific loader type.")
+@Description("List all loaded SlimeWorlds for a specific loader type. ")
 @Examples(
     value = [
-        "set {loadedSlimeWorlds::*} to all loaded slime worlds with type %file%"
+        "set {loadedSlimeWorlds::*} to all loaded slimeworlds with type %file%",
+        "set {loadedSlimeWorlds::*} to all loaded slime worlds with %file%",
+        "set {worlds} to all loaded slimeworlds with type %mysql%"
     ]
 )
 @Since("1.0.0")

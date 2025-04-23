@@ -15,6 +15,12 @@ import org.bukkit.event.Event
 @Name("Initialize Loader")
 @Description("Initializes the loader for the given loader type.")
 @Since("1.0.0")
+@ch.njol.skript.doc.Examples(
+    value = [
+        "initialize slime loader with type %file%",
+        "initialize slime loader with %mysql%"
+    ]
+)
 class EffInitializeLoader : Effect() {
 
     companion object {

@@ -18,8 +18,10 @@ import org.bukkit.event.Event
 @Description("Create a SlimePropertyMap with default values.")
 @Examples(
     value = [
-        "set {_slimeProperty} to default slime world properties",
-        "set {_slimeProperty} to new slime world properties"
+        "set {_slimeProperty} to slime world properties",
+        "set {_props} to default slime world properties",
+        "set {_config} to new slime world properties",
+        "create slimeworld named \"Test\" with props (new slime world properties) with type %file%"
     ]
 )
 @Since("1.0.0")

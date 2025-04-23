@@ -26,8 +26,10 @@ import kotlin.system.measureTimeMillis
 @Description("Create a new Slime World with a name, slime properties, and whether it's readOnly.")
 @Examples(
     value = [
-        "create slime world named \"Test\" with props {globalProps} with type %file%",
-        "new slime world named \"Test\" with props {globalProps} as ReadOnly with type %file%"
+        "create slimeworld named \"Test\" with props {globalProps} with type %file%",
+        "new slime world named \"MyWorld\" with props {worldProps} with %file%",
+        "create slimeworld named \"ReadOnlyWorld\" with props {minimalProps} as ReadOnly with type %file%",
+        "new slime world named \"AnotherWorld\" with props {customProps} as ReadOnly with %mysql%"
     ]
 )
 @Since("1.0.0")
