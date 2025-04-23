@@ -38,7 +38,7 @@
     - [ ] Slime property value checking
     - [x] Slime world loaded
     - [ ] Slime world property value
-    - [ ] Slime world read only
+    - [x] Slime world read only
 
 
 ## Third‑Party Code
