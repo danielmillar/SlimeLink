@@ -34,7 +34,7 @@
 - [ ] Fetch slime properties by world object
 - [x] Fetch all loaded slime worlds
 - [x] Fetch all slime worlds from config
-- [ ] Modify slime properties map
+- [x] Modify slime properties map
 - [ ] Modify slime properties of a world
 
 ### Conditions
