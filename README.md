@@ -9,6 +9,9 @@
 >
 > 📄 This page is a work in progress and will be updated to display **detailed features** and **usage instructions** when the time is right. Stay tuned!
 
+## Documentation
+[![SkriptHubViewTheDocs](http://skripthub.net/static/addon/ViewTheDocsButton.png)](http://skripthub.net/docs/?addon=SlimeLink)
+
 ## Progress Tracker
 
 > ⚠️ **Disclaimer:** While some features have been implemented, SlimeLink is in early development. Bugs may occur, and data loss could happen. Use at your own risk.
