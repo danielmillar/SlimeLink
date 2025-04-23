@@ -19,7 +19,7 @@
     - [x] Unload slime world by world name
     - [x] Save slime world by world name
     - [ ] Clone slime world
-    - [ ] Delete slime world by world name
+    - [x] Delete slime world by world name
     - [ ] Unload slime world by world object
     - [ ] Save slime world by world object
     - [ ] Delete slime world by world object
