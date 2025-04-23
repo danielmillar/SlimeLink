@@ -68,4 +68,4 @@ Portions of this project (configuration structures, utilities, etc.) are derived
 
 ## License
 
-This project is licensed under the GPL v3.0. See [LICENSE](https://github.com/danielmillar/SlimeLink/blob/main/LICENSE) for details.
+This project is licensed under the GPL v3.0. See [LICENSE](https://github.com/danielmillar/SlimeLink/blob/master/LICENSE) for details.
