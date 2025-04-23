@@ -1,0 +1,46 @@
+name: SlimeLink Build Jar
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+
+    - name: Make gradlew executable
+      run: chmod +x ./gradlew
+
+    - name: Run build
+      run: ./gradlew shadowJar
+
+    - name: Archive build output
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-output
+        path: build/libs
+
+  attach-release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Download build output
+      uses: actions/download-artifact@v4
+      with:
+        name: build-output
+        path: build-output
+
+    - name: Attach build output to release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: build-output/*
