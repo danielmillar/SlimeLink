@@ -23,9 +23,8 @@
 - [x] Save slime world by name
 - [ ] Clone slime world
 - [x] Delete slime world by name
-- [ ] Unload slime world by object
-- [ ] Save slime world by object
-- [ ] Delete slime world by object
+- [x] Unload slime world by object
+- [x] Save slime world by object
 
 ### Expressions
 - [x] Create slime properties
