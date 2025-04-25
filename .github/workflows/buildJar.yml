@@ -2,7 +2,9 @@ name: SlimeLink Build Jar
 
 on:
   release:
-    types: [published, edited]
+    types:
+      - published
+      - edited
   workflow_dispatch:
 
 permissions: write-all
