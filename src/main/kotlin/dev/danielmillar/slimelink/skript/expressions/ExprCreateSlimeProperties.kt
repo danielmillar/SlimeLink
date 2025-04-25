@@ -21,7 +21,7 @@ import org.bukkit.event.Event
         "set {_slimeProperty} to slime world properties",
         "set {_props} to default slime world properties",
         "set {_config} to new slime world properties",
-        "create slimeworld named \"Test\" with props (new slime world properties) with type %file%"
+        "create slimeworld named \"Test\" with props (new slime world properties) with datasource %file%"
     ]
 )
 @Since("1.0.0")

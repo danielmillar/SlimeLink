@@ -13,11 +13,11 @@ import dev.danielmillar.slimelink.slime.SlimeManager
 import org.bukkit.event.Event
 
 @Name("Initialize Loader")
-@Description("Initializes the loader for the given loader type.")
+@Description("Initializes the loader for the given datasource.")
 @Since("1.0.0")
 @ch.njol.skript.doc.Examples(
     value = [
-        "initialize slime loader with type %file%",
+        "initialize slime loader with datasource %file%",
         "initialize slime loader with %mysql%"
     ]
 )
@@ -27,7 +27,7 @@ class EffInitializeLoader : Effect() {
         init {
             Skript.registerEffect(
                 EffInitializeLoader::class.java,
-                "initialize slime loader with [type] %slimeloader%"
+                "initialize slime loader with [datasource|data source] %slimeloader%"
             )
         }
     }
@@ -42,7 +42,7 @@ class EffInitializeLoader : Effect() {
 
             if (!success || SlimeManager.getLoader(loaderTypeValue) == null) {
                 Skript.error(
-                    "An error occurred while trying to initialize Slime Loader. Loader type: ${loaderTypeValue.name.lowercase()}. Make sure this loader is enabled and the credentials are correct, if applicable."
+                    "An error occurred while trying to initialize Slime Loader. Loader datasource: ${loaderTypeValue.name.lowercase()}. Make sure this datasource is enabled and the credentials are correct, if applicable."
                 )
             }
         } catch (ex: Exception) {
@@ -52,7 +52,7 @@ class EffInitializeLoader : Effect() {
     }
 
     override fun toString(event: Event?, debug: Boolean): String {
-        return "initialize slime loader with type ${loaderType.toString(event, debug)}"
+        return "initialize slime loader with datasource ${loaderType.toString(event, debug)}"
     }
 
     @Suppress("unchecked_cast")

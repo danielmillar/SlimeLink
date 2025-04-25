@@ -26,9 +26,9 @@ import kotlin.system.measureTimeMillis
 @Description("Create a new Slime World with a name, slime properties, and whether it's readOnly.")
 @Examples(
     value = [
-        "create slimeworld named \"Test\" with props {globalProps} with type %file%",
+        "create slimeworld named \"Test\" with props {globalProps} with datasource %file%",
         "new slime world named \"MyWorld\" with props {worldProps} with %file%",
-        "create slimeworld named \"ReadOnlyWorld\" with props {minimalProps} as ReadOnly with type %file%",
+        "create slimeworld named \"ReadOnlyWorld\" with props {minimalProps} as ReadOnly with datasource %file%",
         "new slime world named \"AnotherWorld\" with props {customProps} as ReadOnly with %mysql%"
     ]
 )
@@ -39,7 +39,7 @@ class EffCreateSlimeWorld : Effect() {
         init {
             Skript.registerEffect(
                 EffCreateSlimeWorld::class.java,
-                "(create|new) (slimeworld|slime world) named %string% with props %slimepropertymap% [readonly:as ReadOnly] with [type] %slimeloader%"
+                "(create|new) (slimeworld|slime world) named %string% with props %slimepropertymap% [readonly:as ReadOnly] with [datasource|data source] %slimeloader%"
             )
         }
     }
@@ -55,7 +55,7 @@ class EffCreateSlimeWorld : Effect() {
                 event,
                 debug
             )
-        } ${if (isReadOnly) "as readOnly" else ""} with type ${loaderType.toString(event, debug)}"
+        } ${if (isReadOnly) "as readOnly" else ""} with datasource ${loaderType.toString(event, debug)}"
     }
 
     @Suppress("unchecked_cast")

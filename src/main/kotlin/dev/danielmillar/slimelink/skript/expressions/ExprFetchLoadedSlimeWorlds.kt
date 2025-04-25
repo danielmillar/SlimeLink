@@ -19,7 +19,7 @@ import org.bukkit.event.Event
 @Description("List all loaded SlimeWorlds for a specific loader type. ")
 @Examples(
     value = [
-        "set {loadedSlimeWorlds::*} to all loaded slimeworlds with type %file%",
+        "set {loadedSlimeWorlds::*} to all loaded slimeworlds with datasource %file%",
         "set {loadedSlimeWorlds::*} to all loaded slime worlds with %file%",
         "set {worlds} to all loaded slimeworlds with type %mysql%"
     ]
@@ -33,7 +33,7 @@ class ExprFetchLoadedSlimeWorlds : SimpleExpression<String>() {
                 ExprFetchLoadedSlimeWorlds::class.java,
                 String::class.java,
                 ExpressionType.SIMPLE,
-                "all loaded (slimeworlds|slime worlds) with [type] %slimeloader%"
+                "all loaded (slimeworlds|slime worlds) with [datasource|data source] %slimeloader%"
             )
         }
     }
@@ -41,7 +41,7 @@ class ExprFetchLoadedSlimeWorlds : SimpleExpression<String>() {
     private lateinit var loaderType: Expression<SlimeLoaderTypeEnum>
 
     override fun toString(event: Event?, debug: Boolean): String {
-        return "Fetching all loaded slime worlds with type ${loaderType.toString(event, debug)}"
+        return "Fetching all loaded slime worlds with datasource ${loaderType.toString(event, debug)}"
     }
 
     @Suppress("unchecked_cast")

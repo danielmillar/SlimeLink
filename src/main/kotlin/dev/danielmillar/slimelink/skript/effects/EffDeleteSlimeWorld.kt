@@ -23,7 +23,7 @@ import kotlin.system.measureTimeMillis
 @Description("Delete a Slime World with a specified name.")
 @Examples(
     value = [
-        "delete slimeworld named \"Test\" with type %file%",
+        "delete slimeworld named \"Test\" with datasource %file%",
         "delete slime world named \"MyWorld\" with %file%",
         "delete slimeworld named \"OldWorld\" with type %mysql%"
     ]
@@ -35,7 +35,7 @@ class EffDeleteSlimeWorld : Effect() {
         init {
             Skript.registerEffect(
                 EffDeleteSlimeWorld::class.java,
-                "delete (slimeworld|slime world) named %string% with [type] %slimeloader%"
+                "delete (slimeworld|slime world) named %string% with [datasource|data source] %slimeloader%"
             )
         }
     }
@@ -44,7 +44,7 @@ class EffDeleteSlimeWorld : Effect() {
     private lateinit var loaderType: Expression<SlimeLoaderTypeEnum>
 
     override fun toString(event: Event?, debug: Boolean): String {
-        return "Delete slime world ${worldName.toString(event, debug)} with type ${loaderType.toString(event, debug)}"
+        return "Delete slime world ${worldName.toString(event, debug)} with datasource ${loaderType.toString(event, debug)}"
     }
 
     @Suppress("unchecked_cast")

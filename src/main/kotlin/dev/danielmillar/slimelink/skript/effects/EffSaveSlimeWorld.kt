@@ -23,9 +23,9 @@ import kotlin.system.measureTimeMillis
 @Description("Save a Slime World with a specified name.")
 @Examples(
     value = [
-        "save slimeworld named \"Test\" with type %file%",
+        "save slimeworld named \"Test\" with datasource %file%",
         "save slime world named \"MyWorld\" with %file%",
-        "save slimeworld named \"ServerWorld\" with type %mysql%"
+        "save slimeworld named \"ServerWorld\" with datasource %mysql%"
     ]
 )
 @Since("1.0.0")
@@ -35,7 +35,7 @@ class EffSaveSlimeWorld : Effect() {
         init {
             Skript.registerEffect(
                 EffSaveSlimeWorld::class.java,
-                "save (slimeworld|slime world) named %string% with [type] %slimeloader%"
+                "save (slimeworld|slime world) named %string% with [datasource|data source] %slimeloader%"
             )
         }
     }
