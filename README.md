@@ -38,7 +38,7 @@
 - [ ] Modify slime properties of a world
 
 ### Conditions
-- [ ] Slime property value checking
+- [x] Slime property value checking
 - [x] Slime world loaded
 - [ ] Slime world property value
 - [x] Slime world read-only
