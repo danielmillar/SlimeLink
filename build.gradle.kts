@@ -26,7 +26,7 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.5-R0.1-SNAPSHOT")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
-    compileOnly("com.github.SkriptLang:Skript:2.11.0")
+    compileOnly("com.github.SkriptLang:Skript:2.11.1")
 
     compileOnly("com.infernalsuite.asp:api:4.0.0-SNAPSHOT")
     implementation("com.infernalsuite.asp:loaders:4.0.0-SNAPSHOT")
