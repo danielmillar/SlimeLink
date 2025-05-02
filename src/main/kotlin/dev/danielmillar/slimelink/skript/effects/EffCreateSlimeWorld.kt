@@ -80,9 +80,9 @@ class EffCreateSlimeWorld : Effect() {
             val loader = requireLoader(loaderTypeValue)
 
             createAndLoadWorldAsync(worldNameValue, properties, loader, loaderTypeValue.name.lowercase(), isReadOnly)
-        }catch (e: IllegalArgumentException) {
+        } catch (e: IllegalArgumentException) {
             Skript.error(e.message)
-        }catch (io: IOException) {
+        } catch (io: IOException) {
             Skript.error("I/O error while creating world '$worldNameValue': ${io.message}")
             io.printStackTrace()
         }

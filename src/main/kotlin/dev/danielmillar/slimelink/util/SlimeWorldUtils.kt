@@ -19,28 +19,44 @@ import kotlin.system.measureTimeMillis
 object SlimeWorldUtils {
 
     /**
-     * Throws if no Bukkit world with that name is loaded.
+     * Throws if a Bukkit world with that name is not loaded.
      * Returns the non-null World on success.
      */
-    fun requireWorldExists(name: String): World =
+    fun requireWorldLoaded(name: String): World =
         requireNotNull(Bukkit.getWorld(name)) { "World '$name' is not loaded" }
 
     /**
-     * Throws if a Bukkit world with that name *is* already loaded.
-     * Use when you’re creating a new world and want to prevent name clashes.
+     * Throws if a Bukkit world with that name is already loaded.
+     */
+    fun requireWorldNotLoaded(name: String) {
+        require(Bukkit.getWorld(name) == null) {
+            "World '$name' is already loaded!"
+        }
+    }
+
+    /**
+     * Throws if a Bukkit world with that name is already loaded.
      */
     fun requireWorldNotExists(name: String) {
-        require(Bukkit.getWorld(name) == null) { "A world with that name already exists!" }
+        require(Bukkit.getWorld(name) == null) { "A loaded world with that name already exists!" }
     }
 
     /**
      * Throws if a world with that name is already in the config.
-     * Use when you’re creating a new world and want to prevent name clashes.
      */
     fun requireWorldDataNotExists(worldName: String) {
         val worldData = ConfigManager.getWorldConfig().getWorld(worldName)
         require(worldData == null) { "World $worldName already exists in config" }
     }
+
+    /**
+     * Throws if a world with that name is not in the config.
+     * Returns the non-null WorldData on success.
+     */
+    fun requireWorldDataExists(worldName: String): WorldData =
+        requireNotNull(ConfigManager.getWorldConfig().getWorld(worldName)) {
+            "World $worldName cannot be found in config"
+        }
 
     /**
      * Ensures a SlimeLoader for the given type is registered and returns it.
@@ -51,7 +67,7 @@ object SlimeWorldUtils {
         }
 
     /**
-     * Creates, saves a new Slime world entirely off the main thread,
+     * Creates and saves a new Slime world entirely off the main thread,
      * then loads the world and updates the config on the main thread.
      */
     fun createAndLoadWorldAsync(
@@ -82,6 +98,25 @@ object SlimeWorldUtils {
             }
 
             Skript.info("Successfully created world '$worldName' in ${time}ms")
+        })
+    }
+
+    fun loadWorldAsync(
+        worldName: String,
+        loader: SlimeLoader,
+        readOnly: Boolean,
+        properties: SlimePropertyMap
+    ) {
+        val plugin = SlimeLink.getInstance()
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, Runnable {
+            val time = measureTimeMillis {
+                val slimeWorld = SlimeLink.getASP().readWorld(loader, worldName, readOnly, properties)
+
+                Bukkit.getScheduler().runTask(plugin, Runnable {
+                    SlimeLink.getASP().loadWorld(slimeWorld, true)
+                })
+            }
+            Skript.info("Successfully loaded world '$worldName' in ${time}ms")
         })
     }
 

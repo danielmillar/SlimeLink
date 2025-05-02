@@ -11,15 +11,15 @@ import ch.njol.skript.lang.SkriptParser
 import ch.njol.util.Kleenean
 import com.infernalsuite.asp.api.exceptions.CorruptedWorldException
 import com.infernalsuite.asp.api.exceptions.NewerFormatException
+import com.infernalsuite.asp.api.exceptions.SlimeException
 import com.infernalsuite.asp.api.exceptions.UnknownWorldException
-import dev.danielmillar.slimelink.SlimeLink
-import dev.danielmillar.slimelink.config.ConfigManager
 import dev.danielmillar.slimelink.slime.SlimeLoaderTypeEnum
-import dev.danielmillar.slimelink.slime.SlimeManager
-import org.bukkit.Bukkit
+import dev.danielmillar.slimelink.util.SlimeWorldUtils.loadWorldAsync
+import dev.danielmillar.slimelink.util.SlimeWorldUtils.requireLoader
+import dev.danielmillar.slimelink.util.SlimeWorldUtils.requireWorldDataExists
+import dev.danielmillar.slimelink.util.SlimeWorldUtils.requireWorldNotLoaded
 import org.bukkit.event.Event
 import java.io.IOException
-import kotlin.system.measureTimeMillis
 
 @Name("Load Slime World")
 @Description("Load a new Slime World with a specified name.")
@@ -46,7 +46,12 @@ class EffLoadSlimeWorld : Effect() {
     private lateinit var loaderType: Expression<SlimeLoaderTypeEnum>
 
     override fun toString(event: Event?, debug: Boolean): String {
-        return "Load slime world ${worldName.toString(event, debug)} with datasource ${loaderType.toString(event, debug)}"
+        return "Load slime world ${worldName.toString(event, debug)} with datasource ${
+            loaderType.toString(
+                event,
+                debug
+            )
+        }"
     }
 
     @Suppress("unchecked_cast")
@@ -65,73 +70,39 @@ class EffLoadSlimeWorld : Effect() {
         val worldNameValue = worldName.getSingle(event) ?: return
         val loaderTypeValue = loaderType.getSingle(event) ?: return
 
-        val bukkitWorld = Bukkit.getWorld(worldNameValue)
-        if (bukkitWorld != null) {
-            Skript.error("World $worldNameValue is already loaded!")
-            return
-        }
+        try {
+            requireWorldNotLoaded(worldNameValue)
+            val worldData = requireWorldDataExists(worldNameValue)
+            val loader = requireLoader(loaderTypeValue)
 
-        val worldData = ConfigManager.getWorldConfig().getWorld(worldNameValue)
-        if (worldData == null) {
-            Skript.error("World $worldNameValue cannot be found in config")
-            return
-        }
-
-        val loader = SlimeManager.getLoader(loaderTypeValue)
-        if (loader == null) {
-            Skript.error("Loader ${loaderTypeValue.name} is not registered. Please initialize it first.")
-            return
-        }
-
-        Bukkit.getScheduler().runTaskAsynchronously(SlimeLink.getInstance(), Runnable {
-            try {
-                val timeTaken = measureTimeMillis {
-                    val slimeWorld = SlimeLink.getASP().readWorld(
-                        loader,
-                        worldNameValue,
-                        worldData.isReadOnly(),
-                        worldData.toPropertyMap()
-                    )
-
-                    Bukkit.getScheduler().runTask(SlimeLink.getInstance(), Runnable {
-                        try {
-                            SlimeLink.getASP().loadWorld(slimeWorld, true)
-                        } catch (ex: Exception) {
-                            when (ex) {
-                                is IllegalArgumentException, is UnknownWorldException, is IOException -> {
-                                    Skript.error("Failed to load world $worldNameValue: ${ex.message}")
-                                }
-                                else -> throw ex
-                            }
-                        }
-                    })
+            loadWorldAsync(worldNameValue, loader, worldData.isReadOnly(), worldData.toPropertyMap())
+        } catch (e: IllegalArgumentException) {
+            Skript.error(e.message)
+        } catch (io: IOException) {
+            Skript.error("I/O error while loading world $worldNameValue: ${io.message}")
+            io.printStackTrace()
+        } catch (slime: SlimeException) {
+            when (slime) {
+                is CorruptedWorldException -> {
+                    Skript.error("Failed to load world $worldNameValue. World seems to be corrupted")
+                    slime.printStackTrace()
                 }
 
-                Skript.info("World $worldNameValue loaded within $timeTaken ms!")
-            } catch (ex: Exception) {
-                when (ex) {
-                    is CorruptedWorldException -> {
-                        Skript.error("Failed to load world $worldNameValue. World seems to be corrupted")
-                        ex.printStackTrace()
-                    }
-                    is NewerFormatException -> {
-                        Skript.error("Failed to load world $worldNameValue. This world was serialized with a newer version of Slime Format that SWM can't understand")
-                        ex.printStackTrace()
-                    }
-                    is UnknownWorldException -> {
-                        Skript.error("Failed to load world $worldNameValue. World cannot be found")
-                        ex.printStackTrace()
-                    }
-                    is IOException, is IllegalArgumentException -> {
-                        Skript.error("Failed to load world $worldNameValue. Check logger for more information")
-                        ex.printStackTrace()
-                    }
-                    else -> {
-                        Skript.error("Failed to load world $worldNameValue: ${ex.message}")
-                        ex.printStackTrace()
-                    }
+                is NewerFormatException -> {
+                    Skript.error("Failed to load world $worldNameValue. This world was serialized with a newer version of Slime Format that SWM can't understand")
+                    slime.printStackTrace()
+                }
+
+                is UnknownWorldException -> {
+                    Skript.error("Failed to load world $worldNameValue. World cannot be found")
+                    slime.printStackTrace()
+                }
+
+                else -> {
+                    Skript.error("Failed to load world $worldNameValue: ${slime.message}")
+                    slime.printStackTrace()
                 }
             }
-        })
+        }
     }
 }
