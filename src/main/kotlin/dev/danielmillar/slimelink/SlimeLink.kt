@@ -31,7 +31,7 @@ class SlimeLink : JavaPlugin() {
         instance = this
 
         platform = ServerPlatform.detect()
-        logger.info { "Platform Detected: We're running ${platform.name}" }
+        slF4JLogger.info("Platform Detected: We're running ${platform.name}")
 
         try {
             ConfigManager.initialize()
