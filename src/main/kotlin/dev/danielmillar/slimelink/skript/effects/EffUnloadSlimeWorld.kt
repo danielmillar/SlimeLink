@@ -9,18 +9,18 @@ import ch.njol.skript.lang.Effect
 import ch.njol.skript.lang.Expression
 import ch.njol.skript.lang.SkriptParser
 import ch.njol.util.Kleenean
-import dev.danielmillar.slimelink.util.SlimeWorldUtils
+import dev.danielmillar.slimelink.util.SlimeWorldUtils.requireWorldDataExists
+import dev.danielmillar.slimelink.util.SlimeWorldUtils.requireWorldLoaded
+import dev.danielmillar.slimelink.util.SlimeWorldUtils.unloadWithOptionalTeleport
 import org.bukkit.Location
 import org.bukkit.event.Event
 
 @Name("Unload Slime World")
-@Description("Unload a Slime World with a specified name. Optionally teleport players out of the world, either to the default world spawn or to a specified location.")
+@Description("Unload a Slime World with a specified name. Optionally teleport players out of the world, to a specified location.")
 @Examples(
     value = [
         "unload slimeworld named \"Test\"",
         "unload slime world named \"MyWorld\"",
-        "unload slimeworld named \"Test\" and teleport",
-        "unload slime world named \"MyWorld\" and teleport",
         "unload slimeworld named \"Test\" and teleport to {spawnLocation}",
         "unload slime world named \"MyWorld\" and teleport to location(0, 64, 0, world(\"world\"))"
     ]
@@ -32,7 +32,7 @@ class EffUnloadSlimeWorld : Effect() {
         init {
             Skript.registerEffect(
                 EffUnloadSlimeWorld::class.java,
-                "unload (slimeworld|slime world) named %string% [teleport:and teleport [to %-location%]]"
+                "unload (slimeworld|slime world) named %string% [teleport:and teleport to %-location%]"
             )
         }
     }
@@ -43,7 +43,12 @@ class EffUnloadSlimeWorld : Effect() {
 
     override fun toString(event: Event?, debug: Boolean): String {
         val locationStr = teleportLocation?.let { " to ${it.toString(event, debug)}" } ?: ""
-        return "Unload slime world ${worldName.toString(event, debug)}${if (shouldTeleport) " and teleport$locationStr" else ""}"
+        return "Unload slime world ${
+            worldName.toString(
+                event,
+                debug
+            )
+        }${if (shouldTeleport) " and teleport$locationStr" else ""}"
     }
 
     @Suppress("unchecked_cast")
@@ -64,32 +69,13 @@ class EffUnloadSlimeWorld : Effect() {
     override fun execute(event: Event) {
         val worldNameValue = worldName.getSingle(event) ?: return
 
-        // Validate the world
-        val bukkitWorld = SlimeWorldUtils.validateWorldByName(worldNameValue) ?: return
+        try {
+            val world = requireWorldLoaded(worldNameValue)
+            val worldData = requireWorldDataExists(worldNameValue)
 
-        // Get world data
-        val worldData = SlimeWorldUtils.getWorldData(worldNameValue) ?: return
-
-        val playersInWorld = bukkitWorld.players
-        if (playersInWorld.isEmpty()) {
-            // No players in world, unload directly
-            val success = SlimeWorldUtils.unloadWorld(worldNameValue, bukkitWorld, worldData)
-            SlimeWorldUtils.handleUnloadResult(worldNameValue, success)
-            return
+            unloadWithOptionalTeleport(worldNameValue, world, worldData, shouldTeleport, teleportLocation?.getSingle(event))
+        } catch (e: IllegalArgumentException) {
+            Skript.error(e.message)
         }
-
-        if (!shouldTeleport) {
-            // Players in world but no teleport requested
-            val success = SlimeWorldUtils.unloadWorld(worldNameValue, bukkitWorld, worldData)
-            SlimeWorldUtils.handleUnloadResult(worldNameValue, success)
-            return
-        }
-
-        // Get teleport target location
-        val customLocation = teleportLocation?.getSingle(event)
-        val teleportTarget = SlimeWorldUtils.getTeleportTarget(customLocation) ?: return
-
-        // Teleport players and unload world
-        SlimeWorldUtils.teleportPlayersAndUnloadWorld(worldNameValue, bukkitWorld, worldData, teleportTarget)
     }
 }

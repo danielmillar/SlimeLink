@@ -9,7 +9,8 @@ import ch.njol.skript.lang.Effect
 import ch.njol.skript.lang.Expression
 import ch.njol.skript.lang.SkriptParser
 import ch.njol.util.Kleenean
-import dev.danielmillar.slimelink.util.SlimeWorldUtils
+import dev.danielmillar.slimelink.util.SlimeWorldUtils.requireWorldDataExists
+import dev.danielmillar.slimelink.util.SlimeWorldUtils.unloadWithOptionalTeleport
 import org.bukkit.Location
 import org.bukkit.World
 import org.bukkit.event.Event
@@ -66,29 +67,12 @@ class EffUnloadSlimeWorldByObject : Effect() {
         val bukkitWorld = world.getSingle(event) ?: return
         val worldNameValue = bukkitWorld.name
 
-        // Get world data
-        val worldData = SlimeWorldUtils.getWorldData(worldNameValue) ?: return
+        try {
+            val worldData = requireWorldDataExists(worldNameValue)
 
-        val playersInWorld = bukkitWorld.players
-        if (playersInWorld.isEmpty()) {
-            // No players in world, unload directly
-            val success = SlimeWorldUtils.unloadWorld(worldNameValue, bukkitWorld, worldData)
-            SlimeWorldUtils.handleUnloadResult(worldNameValue, success)
-            return
+            unloadWithOptionalTeleport(worldNameValue, bukkitWorld, worldData, shouldTeleport, teleportLocation?.getSingle(event))
+        }catch (e: IllegalArgumentException) {
+            Skript.error(e.message)
         }
-
-        if (!shouldTeleport) {
-            // Players in world but no teleport requested
-            val success = SlimeWorldUtils.unloadWorld(worldNameValue, bukkitWorld, worldData)
-            SlimeWorldUtils.handleUnloadResult(worldNameValue, success)
-            return
-        }
-
-        // Get teleport target location
-        val customLocation = teleportLocation?.getSingle(event)
-        val teleportTarget = SlimeWorldUtils.getTeleportTarget(customLocation) ?: return
-
-        // Teleport players and unload world
-        SlimeWorldUtils.teleportPlayersAndUnloadWorld(worldNameValue, bukkitWorld, worldData, teleportTarget)
     }
 }
