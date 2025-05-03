@@ -160,6 +160,23 @@ object SlimeWorldUtils {
         })
     }
 
+    fun saveWorldSync(
+        worldBukkit: World,
+        worldName: String,
+        worldData: WorldData,
+    ) {
+        val plugin = SlimeLink.getInstance()
+        Bukkit.getScheduler().runTask(plugin, Runnable {
+            val time = measureTimeMillis {
+                worldBukkit.save()
+
+                ConfigManager.getWorldConfig().setWorld(worldName, worldData)
+                ConfigManager.saveWorldConfig()
+            }
+            Skript.info("Successfully saved world '$worldName' in ${time}ms")
+        })
+    }
+
     // Older functions below to be replaced during refactoring
 
     fun validateWorldByName(worldName: String): World? {

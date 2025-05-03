@@ -9,17 +9,18 @@ import ch.njol.skript.lang.Effect
 import ch.njol.skript.lang.Expression
 import ch.njol.skript.lang.SkriptParser
 import ch.njol.util.Kleenean
-import dev.danielmillar.slimelink.slime.SlimeLoaderTypeEnum
-import dev.danielmillar.slimelink.util.SlimeWorldUtils
+import dev.danielmillar.slimelink.util.SlimeWorldUtils.requireWorldDataExists
+import dev.danielmillar.slimelink.util.SlimeWorldUtils.requireWorldLoaded
+import dev.danielmillar.slimelink.util.SlimeWorldUtils.saveWorldSync
 import org.bukkit.event.Event
 
 @Name("Save Slime World")
 @Description("Save a Slime World with a specified name.")
 @Examples(
     value = [
-        "save slimeworld named \"Test\" with datasource %file%",
-        "save slime world named \"MyWorld\" with %file%",
-        "save slimeworld named \"ServerWorld\" with datasource %mysql%"
+        "save slimeworld named \"Test\"",
+        "save slime world named \"MyWorld\"",
+        "save slimeworld named \"ServerWorld\""
     ]
 )
 @Since("1.0.0")
@@ -29,16 +30,15 @@ class EffSaveSlimeWorld : Effect() {
         init {
             Skript.registerEffect(
                 EffSaveSlimeWorld::class.java,
-                "save (slimeworld|slime world) named %string% with [datasource|data source] %slimeloader%"
+                "save (slimeworld|slime world) named %string%"
             )
         }
     }
 
     private lateinit var worldName: Expression<String>
-    private lateinit var loaderType: Expression<SlimeLoaderTypeEnum>
 
     override fun toString(event: Event?, debug: Boolean): String {
-        return "Save slime world ${worldName.toString(event, debug)} with type ${loaderType.toString(event, debug)}"
+        return "Save slime world ${worldName.toString(event, debug)}"
     }
 
     @Suppress("unchecked_cast")
@@ -49,31 +49,21 @@ class EffSaveSlimeWorld : Effect() {
         parseResult: SkriptParser.ParseResult?
     ): Boolean {
         worldName = expressions[0] as Expression<String>
-        loaderType = expressions[1] as Expression<SlimeLoaderTypeEnum>
         return true
     }
 
     override fun execute(event: Event) {
         val worldNameValue = worldName.getSingle(event) ?: return
-        val loaderTypeValue = loaderType.getSingle(event) ?: return
 
-        // Validate the world
-        val bukkitWorld = SlimeWorldUtils.validateWorldByName(worldNameValue) ?: return
+        try {
+            val world = requireWorldLoaded(worldNameValue)
+            val worldData = requireWorldDataExists(worldNameValue)
 
-        // Get world data
-        val worldData = SlimeWorldUtils.getWorldData(worldNameValue) ?: return
+            if (worldData.isReadOnly()) throw IllegalArgumentException("World $worldNameValue is read only")
 
-        // Check if world is read-only
-        if (SlimeWorldUtils.isWorldReadOnly(worldNameValue, worldData)) {
-            return
+            saveWorldSync(world, worldNameValue, worldData)
+        } catch (e: IllegalArgumentException) {
+            Skript.error(e.message)
         }
-
-        // Validate loader
-        if (!SlimeWorldUtils.validateLoader(loaderTypeValue)) {
-            return
-        }
-
-        // Save the world
-        SlimeWorldUtils.saveWorld(worldNameValue, worldData)
     }
 }
