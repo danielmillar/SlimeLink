@@ -11,7 +11,7 @@ import ch.njol.skript.lang.SkriptParser
 import ch.njol.skript.lang.util.SimpleExpression
 import ch.njol.util.Kleenean
 import dev.danielmillar.slimelink.slime.SlimeLoaderTypeEnum
-import dev.danielmillar.slimelink.slime.SlimeManager
+import dev.danielmillar.slimelink.util.SlimeWorldUtils.requireLoader
 import org.bukkit.Bukkit
 import org.bukkit.event.Event
 
@@ -66,21 +66,21 @@ class ExprFetchLoadedSlimeWorlds : SimpleExpression<String>() {
     override fun get(event: Event): Array<String> {
         val loaderTypeValue = loaderType.getSingle(event) ?: return emptyArray()
 
-        val loader = SlimeManager.getLoader(loaderTypeValue)
-        if (loader == null) {
-            Skript.error("Loader ${loaderTypeValue.name} is not registered. Please initialize it first.")
+        try {
+            val loader = requireLoader(loaderTypeValue)
+
+            val loaderWorlds = try {
+                loader.listWorlds()
+            } catch (ex: Exception) {
+                throw IllegalArgumentException("Failed to list worlds from loader ${loaderTypeValue.name}: ${ex.message}")
+            }
+
+            val loadedWorlds = Bukkit.getWorlds().map { it.name }
+
+            return loaderWorlds.filter { loadedWorlds.contains(it) }.toTypedArray()
+        }catch (e: IllegalArgumentException){
+            Skript.error(e.message)
             return emptyArray()
         }
-
-        val loaderWorlds = try {
-            loader.listWorlds()
-        } catch (ex: Exception) {
-            Skript.error("Failed to list worlds from loader ${loaderTypeValue.name}: ${ex.message}")
-            return emptyArray()
-        }
-
-        val loadedWorlds = Bukkit.getWorlds().map { it.name }
-
-        return loaderWorlds.filter { loadedWorlds.contains(it) }.toTypedArray()
     }
 }
