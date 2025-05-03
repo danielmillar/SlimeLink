@@ -22,48 +22,65 @@ object SlimeWorldUtils {
      * Throws if a Bukkit world with that name is not loaded.
      * Returns the non-null World on success.
      */
-    fun requireWorldLoaded(name: String): World =
-        requireNotNull(Bukkit.getWorld(name)) { "World '$name' is not loaded" }
+    fun requireWorldLoaded(
+        name: String,
+        message: String = "World '$name' is not loaded"
+    ): World =
+        requireNotNull(Bukkit.getWorld(name)) { message }
 
     /**
-     * Throws if a Bukkit world with that name is already loaded.
+     * Throws if a Bukkit world with that name is loaded.
+     * @param message the exception message to throw when the world exists.
      */
-    fun requireWorldNotLoaded(name: String) {
-        require(Bukkit.getWorld(name) == null) {
-            "World '$name' is already loaded!"
-        }
+    fun requireWorldNotLoaded(
+        name: String,
+        message: String = "World '$name' is already loaded!"
+    ) {
+        require(Bukkit.getWorld(name) == null) { message }
     }
 
     /**
      * Throws if a Bukkit world with that name is already loaded.
      */
-    fun requireWorldNotExists(name: String) {
-        require(Bukkit.getWorld(name) == null) { "A loaded world with that name already exists!" }
+    fun requireWorldNotExists(
+        name: String,
+        message: String = "A loaded world with that name already exists!"
+    ) {
+        require(Bukkit.getWorld(name) == null) { message }
     }
 
     /**
      * Throws if a world with that name is already in the config.
      */
-    fun requireWorldDataNotExists(worldName: String) {
+    fun requireWorldDataNotExists(
+        worldName: String,
+        message: String = "World $worldName already exists in config"
+    ) {
         val worldData = ConfigManager.getWorldConfig().getWorld(worldName)
-        require(worldData == null) { "World $worldName already exists in config" }
+        require(worldData == null) { message }
     }
 
     /**
      * Throws if a world with that name is not in the config.
      * Returns the non-null WorldData on success.
      */
-    fun requireWorldDataExists(worldName: String): WorldData =
+    fun requireWorldDataExists(
+        worldName: String,
+        message: String = "World $worldName cannot be found in config"
+    ): WorldData =
         requireNotNull(ConfigManager.getWorldConfig().getWorld(worldName)) {
-            "World $worldName cannot be found in config"
+            message
         }
 
     /**
      * Ensures a SlimeLoader for the given type is registered and returns it.
      */
-    fun requireLoader(type: SlimeLoaderTypeEnum): SlimeLoader =
+    fun requireLoader(
+        type: SlimeLoaderTypeEnum,
+        message: String = "Loader '${type.name}' is not registered. Please initialize it first."
+    ): SlimeLoader =
         requireNotNull(SlimeManager.getLoader(type)) {
-            "Loader '${type.name}' is not registered. Please initialize it first."
+            message
         }
 
     /**
