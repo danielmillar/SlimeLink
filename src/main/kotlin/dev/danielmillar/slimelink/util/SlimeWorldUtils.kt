@@ -118,6 +118,10 @@ object SlimeWorldUtils {
         })
     }
 
+    /**
+     * Reads a Slime world entirely off the main thread,
+     * then loads the world on the main thread.
+     */
     fun loadWorldAsync(
         worldName: String,
         loader: SlimeLoader,
@@ -134,6 +138,25 @@ object SlimeWorldUtils {
                 })
             }
             Skript.info("Successfully loaded world '$worldName' in ${time}ms")
+        })
+    }
+
+    /**
+     * Deletes a Slime world and updates the config entirely off the main thread.
+     */
+    fun deleteWorldAsync(
+        worldName: String,
+        loader: SlimeLoader
+    ) {
+        val plugin = SlimeLink.getInstance()
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, Runnable {
+            val time = measureTimeMillis {
+                loader.deleteWorld(worldName)
+
+                ConfigManager.getWorldConfig().removeWorld(worldName)
+                ConfigManager.saveWorldConfig()
+            }
+            Skript.info("Successfully deleted world '$worldName' in ${time}ms")
         })
     }
 
