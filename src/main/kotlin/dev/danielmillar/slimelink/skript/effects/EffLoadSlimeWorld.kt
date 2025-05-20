@@ -25,9 +25,9 @@ import java.io.IOException
 @Description("Load a new Slime World with a specified name.")
 @Examples(
     value = [
-        "load slimeworld named \"Test\" with datasource %file%",
-        "load slime world named \"MyWorld\" with %file%",
-        "load slimeworld named \"GameWorld\" with type %mysql%"
+        "load slimeworld named \"Test\"",
+        "load slime world named \"MyWorld\"",
+        "load slimeworld named \"GameWorld\""
     ]
 )
 @Since("1.0.0")
@@ -37,21 +37,15 @@ class EffLoadSlimeWorld : Effect() {
         init {
             Skript.registerEffect(
                 EffLoadSlimeWorld::class.java,
-                "load (slimeworld|slime world) named %string% with [datasource|data source] %slimeloader%"
+                "load (slimeworld|slime world) named %string%"
             )
         }
     }
 
     private lateinit var worldName: Expression<String>
-    private lateinit var loaderType: Expression<SlimeLoaderTypeEnum>
 
     override fun toString(event: Event?, debug: Boolean): String {
-        return "Load slime world ${worldName.toString(event, debug)} with datasource ${
-            loaderType.toString(
-                event,
-                debug
-            )
-        }"
+        return "Load slime world ${worldName.toString(event, debug)}"
     }
 
     @Suppress("unchecked_cast")
@@ -62,18 +56,16 @@ class EffLoadSlimeWorld : Effect() {
         parseResult: SkriptParser.ParseResult?
     ): Boolean {
         worldName = expressions[0] as Expression<String>
-        loaderType = expressions[1] as Expression<SlimeLoaderTypeEnum>
         return true
     }
 
     override fun execute(event: Event) {
         val worldNameValue = worldName.getSingle(event) ?: return
-        val loaderTypeValue = loaderType.getSingle(event) ?: return
 
         try {
             requireWorldNotLoaded(worldNameValue)
             val worldData = requireWorldDataExists(worldNameValue)
-            val loader = requireLoader(loaderTypeValue)
+            val loader = requireLoader(SlimeLoaderTypeEnum.fromId(worldData.getSource())!!)
 
             loadWorldAsync(worldNameValue, loader, worldData.isReadOnly(), worldData.toPropertyMap())
         } catch (e: IllegalArgumentException) {

@@ -23,9 +23,9 @@ import java.io.IOException
 @Description("Delete a Slime World with a specified name.")
 @Examples(
     value = [
-        "delete slimeworld named \"Test\" with datasource %file%",
-        "delete slime world named \"MyWorld\" with %file%",
-        "delete slimeworld named \"OldWorld\" with type %mysql%"
+        "delete slimeworld named \"Test\"",
+        "delete slime world named \"MyWorld\"",
+        "delete slimeworld named \"OldWorld\""
     ]
 )
 @Since("1.0.0")
@@ -35,21 +35,15 @@ class EffDeleteSlimeWorld : Effect() {
         init {
             Skript.registerEffect(
                 EffDeleteSlimeWorld::class.java,
-                "delete (slimeworld|slime world) named %string% with [datasource|data source] %slimeloader%"
+                "delete (slimeworld|slime world) named %string%"
             )
         }
     }
 
     private lateinit var worldName: Expression<String>
-    private lateinit var loaderType: Expression<SlimeLoaderTypeEnum>
 
     override fun toString(event: Event?, debug: Boolean): String {
-        return "Delete slime world ${worldName.toString(event, debug)} with datasource ${
-            loaderType.toString(
-                event,
-                debug
-            )
-        }"
+        return "Delete slime world ${worldName.toString(event, debug)}"
     }
 
     @Suppress("unchecked_cast")
@@ -60,21 +54,19 @@ class EffDeleteSlimeWorld : Effect() {
         parseResult: SkriptParser.ParseResult?
     ): Boolean {
         worldName = expressions[0] as Expression<String>
-        loaderType = expressions[1] as Expression<SlimeLoaderTypeEnum>
         return true
     }
 
     override fun execute(event: Event) {
         val worldNameValue = worldName.getSingle(event) ?: return
-        val loaderTypeValue = loaderType.getSingle(event) ?: return
 
         try {
-            requireWorldDataExists(worldNameValue)
+            val worldData = requireWorldDataExists(worldNameValue)
             requireWorldNotLoaded(
                 worldNameValue,
                 "World $worldNameValue is currently loaded. Please unload it before deleting."
             )
-            val loader = requireLoader(loaderTypeValue)
+            val loader = requireLoader(SlimeLoaderTypeEnum.fromId(worldData.getSource())!!)
 
             deleteWorldAsync(worldNameValue, loader)
         } catch (e: IllegalArgumentException) {
