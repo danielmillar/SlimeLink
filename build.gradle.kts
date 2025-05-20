@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "dev.danielmillar"
-version = "1.0.0-rc.1"
+version = "1.0.0-rc.2"
 
 repositories {
     mavenCentral()

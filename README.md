@@ -21,7 +21,7 @@
 - [x] Load slime world
 - [x] Unload slime world by name
 - [x] Save slime world by name
-- [ ] Clone slime world
+- [x] Clone slime world
 - [x] Delete slime world by name
 - [x] Unload slime world by object
 - [x] Save slime world by object
