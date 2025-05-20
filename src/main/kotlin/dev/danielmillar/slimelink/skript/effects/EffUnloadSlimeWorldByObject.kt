@@ -16,13 +16,11 @@ import org.bukkit.World
 import org.bukkit.event.Event
 
 @Name("Unload Slime World By Object")
-@Description("Unload a Slime World using a Bukkit World object. Optionally teleport players out of the world, either to the default world spawn or to a specified location.")
+@Description("Unload a Slime World using a Bukkit World object. Optionally teleport players out of the world, to a specified location.")
 @Examples(
     value = [
         "unload slimeworld {world}",
         "unload slime world {myWorld}",
-        "unload slimeworld {world} and teleport",
-        "unload slime world {myWorld} and teleport",
         "unload slimeworld {world} and teleport to {spawnLocation}",
         "unload slime world {myWorld} and teleport to location(0, 64, 0, world(\"world\"))"
     ]
