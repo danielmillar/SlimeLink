@@ -18,7 +18,7 @@ import org.bukkit.event.Event
     value = [
         "if slime world named \"exampleWorld\" is loaded:",
         "    broadcast \"World is currently loaded!\"",
-        "if slime world named \"testWorld\" isn't loaded:",
+        "if slimeworld named \"testWorld\" isn't loaded:",
         "    load slime world named \"testWorld\"",
         "if slime world named \"anotherWorld\" is not loaded:",
         "    broadcast \"World needs to be loaded first!\""
@@ -31,7 +31,7 @@ class CondSlimeWorldLoaded : Condition() {
         init {
             Skript.registerCondition(
                 CondSlimeWorldLoaded::class.java,
-                "slime world named %string% (1¦is|2¦is(n't| not)) loaded"
+                "(slimeworld|slime world) named %string% (1¦is|2¦is(n't| not)) loaded"
             )
         }
     }

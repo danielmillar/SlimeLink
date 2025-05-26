@@ -18,7 +18,7 @@ import org.bukkit.event.Event
     value = [
         "if slime world named \"exampleWorld\" is readonly:",
         "    broadcast \"World is read-only!\"",
-        "if slime world named \"testWorld\" isn't readonly:",
+        "if slimeworld named \"testWorld\" isn't readonly:",
         "    broadcast \"World can be modified!\"",
         "if slime world named \"anotherWorld\" is not readonly:",
         "    broadcast \"World can be modified!\""
@@ -31,7 +31,7 @@ class CondSlimeWorldReadOnly : Condition() {
         init {
             Skript.registerCondition(
                 CondSlimeWorldReadOnly::class.java,
-                "slime world named %string% (1¦is|2¦is(n't| not)) readonly"
+                "(slimeworld|slime world) named %string% (1¦is|2¦is(n't| not)) readonly"
             )
         }
     }
