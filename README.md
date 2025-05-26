@@ -11,36 +11,14 @@
 
 ---
 
-## Progress Tracker
+## Features
 
-**Disclaimer:** SlimeLink is in early development. Some features are implemented; others remain pending. Bugs and data loss may occur, use at your own risk.
+> [!WARNING]
+> SlimeLink is still in development. Some features are implemented; others remain pending. Bugs and data loss may occur,
+> use at your own risk.
 
-### Effects
-- [x] Initialize loaders
-- [x] Create slime world
-- [x] Load slime world
-- [x] Unload slime world by name
-- [x] Save slime world by name
-- [x] Clone slime world
-- [x] Delete slime world by name
-- [x] Unload slime world by object
-- [x] Save slime world by object
-
-### Expressions
-- [x] Create slime properties
-- [x] Fetch slime world
-- [ ] Fetch slime properties by world name
-- [ ] Fetch slime properties by world object
-- [x] Fetch all loaded slime worlds
-- [x] Fetch all slime worlds from config
-- [x] Modify slime properties map
-- [ ] Modify slime properties of a world
-
-### Conditions
-- [x] Slime property value checking
-- [x] Slime world loaded
-- [ ] Slime world property value
-- [x] Slime world read-only
+SlimeLink lets you access the AdvancedSlimeWorldManager API directly from Skript,
+using clean and intuitive syntax to easily create, load, save, and delete worlds.
 
 ---
 
