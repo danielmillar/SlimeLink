@@ -1,5 +1,5 @@
 name: SlimeLink
-version: '1.0.0-rc.2'
+version: '1.0.0'
 main: dev.danielmillar.slimelink.SlimeLink
 api-version: '1.21'
 author: Daniel Millar
