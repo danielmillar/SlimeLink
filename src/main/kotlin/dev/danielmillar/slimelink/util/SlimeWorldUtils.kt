@@ -6,6 +6,7 @@ import com.infernalsuite.asp.api.world.properties.SlimePropertyMap
 import dev.danielmillar.slimelink.SlimeLink
 import dev.danielmillar.slimelink.config.ConfigManager
 import dev.danielmillar.slimelink.config.WorldData
+import dev.danielmillar.slimelink.events.SlimeWorldLoadEvent
 import dev.danielmillar.slimelink.slime.SlimeLoaderTypeEnum
 import dev.danielmillar.slimelink.slime.SlimeManager
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.requireWorldNotLoaded
@@ -137,7 +138,8 @@ object SlimeWorldUtils {
                 SlimeLink.getASP().saveWorld(slimeWorld)
 
                 Bukkit.getScheduler().runTask(plugin, Runnable {
-                    SlimeLink.getASP().loadWorld(slimeWorld, true)
+                    val world = SlimeLink.getASP().loadWorld(slimeWorld, true)
+                    SlimeWorldLoadEvent(world.bukkitWorld).callEvent()
 
                     val worldData = WorldData(source = loaderName, readOnly = readOnly)
                     ConfigManager.getWorldConfig().setWorld(worldName, worldData)
@@ -169,7 +171,8 @@ object SlimeWorldUtils {
                 val slimeWorld = SlimeLink.getASP().readWorld(loader, worldName, readOnly, properties)
 
                 Bukkit.getScheduler().runTask(plugin, Runnable {
-                    SlimeLink.getASP().loadWorld(slimeWorld, true)
+                    val world = SlimeLink.getASP().loadWorld(slimeWorld, true)
+                    SlimeWorldLoadEvent(world.bukkitWorld).callEvent()
                 })
             }
             Skript.info("Successfully loaded world '$worldName' in ${time}ms")
