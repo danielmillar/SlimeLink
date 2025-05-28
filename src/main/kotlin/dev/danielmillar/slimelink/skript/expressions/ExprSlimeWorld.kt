@@ -8,6 +8,7 @@ import ch.njol.skript.lang.SkriptParser
 import ch.njol.skript.lang.util.SimpleExpression
 import ch.njol.util.Kleenean
 import dev.danielmillar.slimelink.events.SlimeWorldLoadEvent
+import dev.danielmillar.slimelink.events.SlimeWorldUnloadEvent
 import org.bukkit.World
 import org.bukkit.event.Event
 
@@ -24,10 +25,10 @@ class ExprSlimeWorld : SimpleExpression<World>(), EventRestrictedSyntax {
         }
 
         private fun getSlimeWorld(event: Event): World? {
-            return if (event is SlimeWorldLoadEvent) {
-                event.slimeworld
-            } else {
-                null
+            return when (event) {
+                is SlimeWorldLoadEvent -> event.slimeworld
+                is SlimeWorldUnloadEvent -> event.slimeworld
+                else -> null
             }
         }
     }
@@ -42,10 +43,7 @@ class ExprSlimeWorld : SimpleExpression<World>(), EventRestrictedSyntax {
     }
 
     override fun get(event: Event): Array<World?> {
-        if (event is SlimeWorldLoadEvent) {
-            return arrayOf(getSlimeWorld(event))
-        }
-        return emptyArray()
+        return arrayOf(getSlimeWorld(event))
     }
 
     override fun toString(event: Event?, debug: Boolean): String {
@@ -61,6 +59,6 @@ class ExprSlimeWorld : SimpleExpression<World>(), EventRestrictedSyntax {
     }
 
     override fun supportedEvents(): Array<out Class<out Event?>?> {
-        return arrayOf(SlimeWorldLoadEvent::class.java)
+        return arrayOf(SlimeWorldLoadEvent::class.java, SlimeWorldUnloadEvent::class.java)
     }
 }

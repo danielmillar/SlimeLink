@@ -7,6 +7,7 @@ import dev.danielmillar.slimelink.SlimeLink
 import dev.danielmillar.slimelink.config.ConfigManager
 import dev.danielmillar.slimelink.config.WorldData
 import dev.danielmillar.slimelink.events.SlimeWorldLoadEvent
+import dev.danielmillar.slimelink.events.SlimeWorldUnloadEvent
 import dev.danielmillar.slimelink.slime.SlimeLoaderTypeEnum
 import dev.danielmillar.slimelink.slime.SlimeManager
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.requireWorldNotLoaded
@@ -241,11 +242,13 @@ object SlimeWorldUtils {
         Bukkit.getScheduler().runTask(plugin, Runnable {
             val time = measureTimeMillis {
                 if (worldData.isReadOnly()) {
+                    SlimeWorldUnloadEvent(bukkitWorld).callEvent()
                     unloadWorld(bukkitWorld, false)
                 } else {
                     ConfigManager.getWorldConfig().setWorld(worldName, worldData)
                     ConfigManager.saveWorldConfig()
 
+                    SlimeWorldUnloadEvent(bukkitWorld).callEvent()
                     unloadWorld(bukkitWorld, true)
                 }
             }
