@@ -2,6 +2,10 @@ package dev.danielmillar.slimelink.skript.sections
 
 import ch.njol.skript.Skript
 import ch.njol.skript.config.SectionNode
+import ch.njol.skript.doc.Description
+import ch.njol.skript.doc.Examples
+import ch.njol.skript.doc.Name
+import ch.njol.skript.doc.Since
 import ch.njol.skript.lang.Expression
 import ch.njol.skript.lang.Section
 import ch.njol.skript.lang.SkriptParser
@@ -19,6 +23,21 @@ import org.skriptlang.skript.lang.entry.util.ExpressionEntryData
 import org.skriptlang.skript.lang.entry.util.LiteralEntryData
 import java.io.IOException
 
+@Name("Create Slime World")
+@Description("Creates a new Slime World with the specified name, properties, and loader type. Optionally can be set to read-only.")
+@Examples(
+    value = [
+        "create slime world named \"TestWorld\"",
+        "\tloader: file",
+        "\tproperties: {slimeProperties}",
+        "\treadonly: true",
+        "create new slime world named \"TestWorld\"",
+        "\tloader: mongodb",
+        "\tproperties: {slimeProperties}",
+        "\treadonly: false"
+    ]
+)
+@Since("1.0.0")
 class SecCreateSlimeWorld : Section() {
 
     companion object {
