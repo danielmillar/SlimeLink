@@ -240,19 +240,28 @@ object SlimeWorldUtils {
     ) {
         val plugin = SlimeLink.getInstance()
         Bukkit.getScheduler().runTask(plugin, Runnable {
+            val unloadEvent = SlimeWorldUnloadEvent(bukkitWorld)
             val time = measureTimeMillis {
                 if (worldData.isReadOnly()) {
-                    SlimeWorldUnloadEvent(bukkitWorld).callEvent()
-                    unloadWorld(bukkitWorld, false)
+                    unloadEvent.callEvent()
+                    if (!unloadEvent.isCancelled) {
+                        unloadWorld(bukkitWorld, false)
+                    }
                 } else {
                     ConfigManager.getWorldConfig().setWorld(worldName, worldData)
                     ConfigManager.saveWorldConfig()
 
-                    SlimeWorldUnloadEvent(bukkitWorld).callEvent()
-                    unloadWorld(bukkitWorld, true)
+                    unloadEvent.callEvent()
+                    if (!unloadEvent.isCancelled) {
+                        unloadWorld(bukkitWorld, true)
+                    }
                 }
             }
-            Skript.info("Successfully unloaded world '$worldName' in ${time}ms")
+            if (unloadEvent.isCancelled) {
+                Skript.info("World unload event for '$worldName' was cancelled, world not unloaded.")
+            } else {
+                Skript.info("Successfully unloaded world '$worldName' in ${time}ms")
+            }
         })
     }
 
