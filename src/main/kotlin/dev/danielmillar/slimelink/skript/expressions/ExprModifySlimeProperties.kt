@@ -21,8 +21,8 @@ import org.bukkit.event.Event
 @Description("Modify a property value in a SlimePropertyMap.")
 @Examples(
     value = [
-        "set pvp of {_slimeProperty} to true",
-        "set spawn x of {_slimeProperty} to 100"
+        "set slime property pvp of {_slimeProperty} to true",
+        "set slime property spawn x of {_slimeProperty} to 100"
     ]
 )
 @Since("1.0.0")
@@ -34,7 +34,7 @@ class ExprModifySlimeProperties : SimpleExpression<Any>() {
                 ExprModifySlimeProperties::class.java,
                 Any::class.java,
                 ExpressionType.SIMPLE,
-                "%slimeproperty% of %slimepropertymap%"
+                "slime property %slimeproperty% of %slimepropertymap%"
             )
         }
     }
