@@ -1,6 +1,10 @@
 package dev.danielmillar.slimelink.skript.effects
 
 import ch.njol.skript.Skript
+import ch.njol.skript.doc.Description
+import ch.njol.skript.doc.Examples
+import ch.njol.skript.doc.Name
+import ch.njol.skript.doc.Since
 import ch.njol.skript.lang.Effect
 import ch.njol.skript.lang.Expression
 import ch.njol.skript.lang.SkriptParser
@@ -16,6 +20,20 @@ import org.bukkit.Bukkit
 import org.bukkit.event.Event
 import kotlin.system.measureTimeMillis
 
+@Name("Clone Slime World")
+@Description(
+    value = [
+        "This effect allows you to clone an existing SlimeWorld into another.",
+        "You may also specify a data source if you're cloning to a different one from the original world."
+    ]
+)
+@Examples(
+    value = [
+        "clone slimeworld from \"Test\" to \"TestCopy\"",
+        "clone slime world from \"MyWorld\" to \"MyWorldBackup\" with datasource mysql",
+    ]
+)
+@Since("1.0.0")
 class EffCloneWorld : Effect() {
 
 	companion object{

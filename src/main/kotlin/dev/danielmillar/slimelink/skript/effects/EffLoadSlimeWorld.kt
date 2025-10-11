@@ -22,12 +22,16 @@ import org.bukkit.event.Event
 import java.io.IOException
 
 @Name("Load Slime World")
-@Description("Load a new Slime World with a specified name.")
+@Description(
+    value = [
+        "This effect allows you to load a specific SlimeWorld.",
+        "The world must be created before it can be loaded."
+    ]
+)
 @Examples(
     value = [
-        "load slimeworld named \"Test\"",
+        "load slimeworld named \"MyWorld\"",
         "load slime world named \"MyWorld\"",
-        "load slimeworld named \"GameWorld\""
     ]
 )
 @Since("1.0.0")

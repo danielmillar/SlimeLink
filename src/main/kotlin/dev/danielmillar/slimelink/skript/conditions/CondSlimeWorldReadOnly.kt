@@ -13,7 +13,7 @@ import dev.danielmillar.slimelink.config.ConfigManager
 import org.bukkit.event.Event
 
 @Name("Check Slime World ReadOnly")
-@Description("Checks if the specified world is readonly or not.")
+@Description("This condition checks if a specific SlimeWorld is read only or not.")
 @Examples(
     value = [
         "if slime world named \"exampleWorld\" is readonly:",

@@ -14,12 +14,11 @@ import dev.danielmillar.slimelink.config.ConfigManager
 import org.bukkit.event.Event
 
 @Name("Fetch All Slime Worlds")
-@Description("List all SlimeWorlds from the config file.")
+@Description("This expression returns all SlimeWorlds that exist in the config.")
 @Examples(
     value = [
         "set {allSlimeWorlds::*} to all slimeworlds",
-        "set {worlds::*} to all slime worlds",
-        "broadcast \"Available worlds: %all slime worlds%\""
+        "broadcast \"Available worlds: %{allSlimeWorlds::*}%\""
     ]
 )
 @Since("1.0.0")

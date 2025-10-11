@@ -2,6 +2,7 @@ package dev.danielmillar.slimelink.skript.effects
 
 import ch.njol.skript.Skript
 import ch.njol.skript.doc.Description
+import ch.njol.skript.doc.Examples
 import ch.njol.skript.doc.Name
 import ch.njol.skript.doc.Since
 import ch.njol.skript.lang.Effect
@@ -13,12 +14,22 @@ import dev.danielmillar.slimelink.slime.SlimeManager
 import org.bukkit.event.Event
 
 @Name("Initialize Loader")
-@Description("Initializes the loader for the given datasource.")
-@Since("1.0.0")
-@ch.njol.skript.doc.Examples(
+@Description(
     value = [
-        "initialize slime loader with datasource %file%",
-        "initialize slime loader with %mysql%"
+        "**IMPORTANT**",
+        "This effect initializes the Slime loader with the specified loader type.",
+        "This must be ran at least once for anything to work."
+    ]
+)
+@Since("1.0.0")
+@Examples(
+    value = [
+        "initialize slime loader with datasource file",
+        "initialize slime loader with datasource mysql",
+        "initialize slime loader with datasource mongodb",
+        "initialize slime loader with file",
+        "initialize slime loader with mysql",
+        "initialize slime loader with mongodb"
     ]
 )
 class EffInitializeLoader : Effect() {

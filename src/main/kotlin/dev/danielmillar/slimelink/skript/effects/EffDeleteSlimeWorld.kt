@@ -20,12 +20,16 @@ import org.bukkit.event.Event
 import java.io.IOException
 
 @Name("Delete Slime World")
-@Description("Delete a Slime World with a specified name.")
+@Description(
+    value = [
+        "This effect allows you to delete a specific SlimeWorld.",
+        "The world must be unloaded before deletion can happen."
+    ]
+)
 @Examples(
     value = [
         "delete slimeworld named \"Test\"",
-        "delete slime world named \"MyWorld\"",
-        "delete slimeworld named \"OldWorld\""
+        "delete slime world named \"MyWorld\""
     ]
 )
 @Since("1.0.0")

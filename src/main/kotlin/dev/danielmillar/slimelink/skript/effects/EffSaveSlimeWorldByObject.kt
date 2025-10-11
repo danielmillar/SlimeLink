@@ -15,12 +15,11 @@ import org.bukkit.World
 import org.bukkit.event.Event
 
 @Name("Save Slime World By Object")
-@Description("Save a Slime World using a Bukkit World object.")
+@Description("This effect allows you to save a specific SlimeWorld.")
 @Examples(
     value = [
         "save slimeworld {world}",
-        "save slime world {myWorld}",
-        "save slimeworld {serverWorld}"
+        "save slime world {world}",
     ]
 )
 @Since("1.0.0")

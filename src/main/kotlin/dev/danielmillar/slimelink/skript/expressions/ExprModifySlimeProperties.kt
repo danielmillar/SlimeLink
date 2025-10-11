@@ -16,15 +16,19 @@ import com.infernalsuite.asp.api.world.properties.SlimePropertyMap
 import dev.danielmillar.slimelink.slime.SlimePropertiesEnum
 import dev.danielmillar.slimelink.util.Util
 import org.bukkit.event.Event
+import kotlin.jvm.java
 
 @Name("Change Slime Properties")
-@Description("Modify a property value in a SlimePropertyMap.")
+@Description(
+    value = [
+        "This expression allows you change properties of an existing SlimePropertyMap.",
+        "A full list of properties are available here: COMING SOON"
+    ])
 @Examples(
     value = [
         "set slime property pvp of {_slimeProperty} to true",
         "set slime property spawn x of {_slimeProperty} to 100"
-    ]
-)
+    ])
 @Since("1.0.0")
 class ExprModifySlimeProperties : SimpleExpression<Any>() {
 

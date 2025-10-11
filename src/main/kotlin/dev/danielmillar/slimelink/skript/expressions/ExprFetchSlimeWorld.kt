@@ -15,12 +15,16 @@ import org.bukkit.World
 import org.bukkit.event.Event
 
 @Name("Fetch Slime World")
-@Description("Fetch a slime world using the specified world name.")
+@Description(
+    value = [
+        "This expression returns a specific SlimeWorld.",
+        "The world must be loaded for it to be returned."
+    ]
+)
 @Examples(
     value = [
-        "set {_slimeWorld} to fetch slimeworld named \"Test\"",
-        "set {_world} to fetch slime world named \"MyWorld\"",
-        "teleport player to spawn of (fetch slimeworld named \"Lobby\")"
+        "set {_world} to fetch slimeworld named \"MyWorld\"",
+        "set {_world} to fetch slime world named \"MyWorld\""
     ]
 )
 @Since("1.0.0")

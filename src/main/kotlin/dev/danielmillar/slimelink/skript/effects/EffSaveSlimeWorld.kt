@@ -15,12 +15,11 @@ import dev.danielmillar.slimelink.util.SlimeWorldUtils.saveWorldSync
 import org.bukkit.event.Event
 
 @Name("Save Slime World")
-@Description("Save a Slime World with a specified name.")
+@Description("This effect allows you to save a specific SlimeWorld.")
 @Examples(
     value = [
-        "save slimeworld named \"Test\"",
+        "save slimeworld named \"MyWorld\"",
         "save slime world named \"MyWorld\"",
-        "save slimeworld named \"ServerWorld\""
     ]
 )
 @Since("1.0.0")

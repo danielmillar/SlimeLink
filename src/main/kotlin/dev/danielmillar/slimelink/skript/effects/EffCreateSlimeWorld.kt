@@ -19,13 +19,15 @@ import org.bukkit.event.Event
 import java.io.IOException
 
 @Name("Create Slime World")
-@Description("Create a new Slime World with a name, slime properties, and whether it's readOnly.")
+@Description("This effect allows you to create a new slime world with a name, SlimePropertyMap, read only and datasource..")
 @Examples(
     value = [
-        "create slimeworld named \"Test\" with props {globalProps} with datasource %file%",
-        "new slime world named \"MyWorld\" with props {worldProps} with %file%",
-        "create slimeworld named \"ReadOnlyWorld\" with props {minimalProps} as ReadOnly with datasource %file%",
-        "new slime world named \"AnotherWorld\" with props {customProps} as ReadOnly with %mysql%"
+        "create slimeworld named \"MyWorld\" with props {globalProps} with datasource file",
+        "new slime world named \"MyWorld\" with props {globalProps} with file",
+        "create slimeworld named \"ReadOnlyWorld\" with props {globalProps} as ReadOnly with datasource mysql",
+        "new slime world named \"AnotherWorld\" with props {globalProps} as ReadOnly with mysql",
+        "create slimeworld named \"MyWorld\" with props {globalProps} with datasource mongodb",
+        "new slime world named \"MyWorld\" with props {globalProps} with mongodb"
     ]
 )
 @Since("1.0.0")

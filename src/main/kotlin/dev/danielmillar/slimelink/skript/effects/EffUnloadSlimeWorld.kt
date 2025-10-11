@@ -16,12 +16,17 @@ import org.bukkit.Location
 import org.bukkit.event.Event
 
 @Name("Unload Slime World")
-@Description("Unload a Slime World with a specified name. Optionally teleport players out of the world, to a specified location.")
+@Description(
+    value = [
+        "This effect allows you to unload a specific SlimeWorld.",
+        "There is an optional to teleport players out of the world as there must be no players in the world while unloading."
+    ]
+)
 @Examples(
     value = [
-        "unload slimeworld named \"Test\"",
+        "unload slimeworld named \"MyWorld\"",
         "unload slime world named \"MyWorld\"",
-        "unload slimeworld named \"Test\" and teleport to {spawnLocation}",
+        "unload slimeworld named \"MyWorld\" and teleport to {spawnLocation}",
         "unload slime world named \"MyWorld\" and teleport to location(0, 64, 0, world(\"world\"))"
     ]
 )

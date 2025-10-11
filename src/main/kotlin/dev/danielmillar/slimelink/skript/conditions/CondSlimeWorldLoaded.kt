@@ -13,7 +13,7 @@ import org.bukkit.Bukkit
 import org.bukkit.event.Event
 
 @Name("Check Slime World Loaded")
-@Description("Checks if the specified world is loaded or not.")
+@Description("This conditions checks if a specific SlimeWorld is loaded or not.")
 @Examples(
     value = [
         "if slime world named \"exampleWorld\" is loaded:",

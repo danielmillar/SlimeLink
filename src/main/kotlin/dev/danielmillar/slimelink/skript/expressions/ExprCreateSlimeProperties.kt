@@ -13,15 +13,20 @@ import ch.njol.util.Kleenean
 import com.infernalsuite.asp.api.world.properties.SlimePropertyMap
 import dev.danielmillar.slimelink.slime.SlimePropertiesEnum
 import org.bukkit.event.Event
+import kotlin.jvm.java
 
 @Name("Create Slime Properties")
-@Description("Create a SlimePropertyMap with default values.")
+@Description(
+    value = [
+        "This effects creates a default SlimePropertyMap to be used when creating worlds.",
+        "Default values are provided."
+])
 @Examples(
     value = [
         "set {_slimeProperty} to slime world properties",
-        "set {_props} to default slime world properties",
-        "set {_config} to new slime world properties",
-        "create slimeworld named \"Test\" with props (new slime world properties) with datasource %file%"
+        "set {_slimeProperty} to default slime world properties",
+        "set {_slimeProperty} to new slime world properties",
+        "create slimeworld named \"MyWorld\" with props (new slime world properties) with datasource file"
     ]
 )
 @Since("1.0.0")

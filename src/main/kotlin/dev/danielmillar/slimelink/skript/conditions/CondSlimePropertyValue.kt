@@ -17,11 +17,11 @@ import dev.danielmillar.slimelink.util.Util
 import org.bukkit.event.Event
 
 @Name("Check Slime Property")
-@Description("Checks if the specified property in the property map is equal to the specified value.")
+@Description("This condition allows you to check if a slime property in a SlimePropertyMap has a certain value.")
 @Examples(
     value = [
-        "if spawn x of slimePropertyMap is 5", 
-        "if allow monsters of slimePropertyMap isn't true"
+        "if slime property spawn x of slimePropertyMap is 5",
+        "if slime property allow monsters of slimePropertyMap isn't true"
     ]
 )
 @Since("1.0.0")
@@ -31,7 +31,7 @@ class CondSlimePropertyValue : Condition() {
         init {
             Skript.registerCondition(
                 CondSlimePropertyValue::class.java,
-                "%slimeproperty% of %slimepropertymap% (1¦is|2¦is(n't| not)) %object%"
+                "slime property %slimeproperty% of %slimepropertymap% (1¦is|2¦is(n't| not)) %object%"
             )
         }
     }
