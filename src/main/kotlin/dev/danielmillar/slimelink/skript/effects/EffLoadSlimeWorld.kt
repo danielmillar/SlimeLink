@@ -18,6 +18,7 @@ import dev.danielmillar.slimelink.util.SlimeWorldUtils.loadWorldAsync
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.requireLoader
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.requireWorldDataExists
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.requireWorldNotLoaded
+import dev.danielmillar.slimelink.util.SlimeWorldUtils.validateWorldName
 import org.bukkit.event.Event
 import java.io.IOException
 
@@ -67,6 +68,8 @@ class EffLoadSlimeWorld : Effect() {
         val worldNameValue = worldName.getSingle(event) ?: return
 
         try {
+            validateWorldName(worldNameValue)
+
             requireWorldNotLoaded(worldNameValue)
             val worldData = requireWorldDataExists(worldNameValue)
             val loader = requireLoader(SlimeLoaderTypeEnum.fromId(worldData.getSource())!!)

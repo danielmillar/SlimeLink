@@ -19,6 +19,17 @@ import kotlin.system.measureTimeMillis
 object SlimeWorldUtils {
 
     /**
+     * Validates a world name to ensure it matches the regex pattern.
+     * @param name the name to validate
+     * @throws IllegalArgumentException if the name is invalid
+     */
+    fun validateWorldName(name: String) {
+        require(name.matches(Regex("^[a-z0-9/._-]+\$"))) {
+            "World name '$name' is invalid. Only lowercase letters, numbers, hyphens, underscores, periods, and slashes are allowed."
+        }
+    }
+
+    /**
      * Ensures that a Bukkit world with the given name is loaded.
      *
      * @param name the name of the world to check

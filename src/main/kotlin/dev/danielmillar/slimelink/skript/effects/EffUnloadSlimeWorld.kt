@@ -12,6 +12,7 @@ import ch.njol.util.Kleenean
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.requireWorldDataExists
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.requireWorldLoaded
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.unloadWithOptionalTeleport
+import dev.danielmillar.slimelink.util.SlimeWorldUtils.validateWorldName
 import org.bukkit.Location
 import org.bukkit.event.Event
 
@@ -75,6 +76,8 @@ class EffUnloadSlimeWorld : Effect() {
         val worldNameValue = worldName.getSingle(event) ?: return
 
         try {
+            validateWorldName(worldNameValue)
+
             val world = requireWorldLoaded(worldNameValue)
             val worldData = requireWorldDataExists(worldNameValue)
 

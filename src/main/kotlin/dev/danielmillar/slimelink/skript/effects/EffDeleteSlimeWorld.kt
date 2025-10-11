@@ -16,6 +16,7 @@ import dev.danielmillar.slimelink.util.SlimeWorldUtils.deleteWorldAsync
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.requireLoader
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.requireWorldDataExists
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.requireWorldNotLoaded
+import dev.danielmillar.slimelink.util.SlimeWorldUtils.validateWorldName
 import org.bukkit.event.Event
 import java.io.IOException
 
@@ -65,6 +66,8 @@ class EffDeleteSlimeWorld : Effect() {
         val worldNameValue = worldName.getSingle(event) ?: return
 
         try {
+            validateWorldName(worldNameValue)
+
             val worldData = requireWorldDataExists(worldNameValue)
             requireWorldNotLoaded(
                 worldNameValue,

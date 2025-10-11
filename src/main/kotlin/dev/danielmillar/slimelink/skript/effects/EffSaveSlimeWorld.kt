@@ -12,6 +12,7 @@ import ch.njol.util.Kleenean
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.requireWorldDataExists
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.requireWorldLoaded
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.saveWorldSync
+import dev.danielmillar.slimelink.util.SlimeWorldUtils.validateWorldName
 import org.bukkit.event.Event
 
 @Name("Save Slime World")
@@ -55,6 +56,8 @@ class EffSaveSlimeWorld : Effect() {
         val worldNameValue = worldName.getSingle(event) ?: return
 
         try {
+            validateWorldName(worldNameValue)
+
             val world = requireWorldLoaded(worldNameValue)
             val worldData = requireWorldDataExists(worldNameValue)
 

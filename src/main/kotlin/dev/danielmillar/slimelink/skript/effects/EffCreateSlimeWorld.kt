@@ -15,6 +15,7 @@ import dev.danielmillar.slimelink.util.SlimeWorldUtils.createAndLoadWorldAsync
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.requireLoader
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.requireWorldDataNotExists
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.requireWorldNotExists
+import dev.danielmillar.slimelink.util.SlimeWorldUtils.validateWorldName
 import org.bukkit.event.Event
 import java.io.IOException
 
@@ -76,6 +77,7 @@ class EffCreateSlimeWorld : Effect() {
         val loaderTypeValue = loaderType.getSingle(event) ?: return
 
         try {
+            validateWorldName(worldNameValue)
             requireWorldNotExists(worldNameValue)
             requireWorldDataNotExists(worldNameValue)
 

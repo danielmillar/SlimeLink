@@ -10,6 +10,7 @@ import ch.njol.skript.lang.ExpressionType
 import ch.njol.skript.lang.SkriptParser
 import ch.njol.skript.lang.util.SimpleExpression
 import ch.njol.util.Kleenean
+import dev.danielmillar.slimelink.util.SlimeWorldUtils.validateWorldName
 import org.bukkit.Bukkit
 import org.bukkit.World
 import org.bukkit.event.Event
@@ -69,12 +70,16 @@ class ExprFetchSlimeWorld : SimpleExpression<World>() {
     override fun get(event: Event): Array<World> {
         val worldNameValue = worldName.getSingle(event) ?: return emptyArray()
 
-        val bukkitWorld = Bukkit.getWorld(worldNameValue)
-        if (bukkitWorld == null) {
-            Skript.error("World $worldNameValue cannot be found, perhaps it doesn't exist or you didn't load it")
+        try {
+            validateWorldName(worldNameValue)
+
+            val bukkitWorld = Bukkit.getWorld(worldNameValue)
+                ?: throw IllegalArgumentException("World $worldNameValue cannot be found")
+
+            return arrayOf(bukkitWorld)
+        } catch (e: IllegalArgumentException) {
+            Skript.error(e.message)
             return emptyArray()
         }
-
-        return arrayOf(bukkitWorld)
     }
 }

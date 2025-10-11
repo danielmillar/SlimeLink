@@ -16,6 +16,7 @@ import dev.danielmillar.slimelink.slime.SlimeLoaderTypeEnum
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.requireLoader
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.requireWorldDataExists
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.requireWorldNotLoaded
+import dev.danielmillar.slimelink.util.SlimeWorldUtils.validateWorldName
 import org.bukkit.Bukkit
 import org.bukkit.event.Event
 import kotlin.system.measureTimeMillis
@@ -83,6 +84,9 @@ class EffCloneWorld : Effect() {
 		}
 
 		try {
+            validateWorldName(sourceName)
+            validateWorldName(targetName)
+
 			requireWorldNotLoaded(targetName)
 
 			val sourceWorldData = requireWorldDataExists(sourceName)
