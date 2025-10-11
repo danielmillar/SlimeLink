@@ -36,23 +36,20 @@ class EffInitializeLoader : Effect() {
 
     override fun execute(event: Event) {
         val loaderTypeValue = loaderType.getSingle(event) ?: return
-
         try {
             val success = SlimeManager.registerLoader(loaderTypeValue)
-
             if (!success || SlimeManager.getLoader(loaderTypeValue) == null) {
                 Skript.error(
                     "An error occurred while trying to initialize Slime Loader. Loader datasource: ${loaderTypeValue.name.lowercase()}. Make sure this datasource is enabled and the credentials are correct, if applicable."
                 )
             }
         } catch (ex: Exception) {
-            Skript.error("Failed to initialize Slime Loader: ${ex.message}")
-            ex.printStackTrace()
+            Skript.error("Failed to initialize Slime Loader: ${ex.message}.")
         }
     }
 
     override fun toString(event: Event?, debug: Boolean): String {
-        return "initialize slime loader with datasource ${loaderType.toString(event, debug)}"
+        return "initialize slime loader with datasource ${loaderType.toString(event, debug).lowercase()}"
     }
 
     @Suppress("unchecked_cast")

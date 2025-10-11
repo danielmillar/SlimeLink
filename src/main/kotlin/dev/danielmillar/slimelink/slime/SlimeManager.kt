@@ -16,59 +16,18 @@ object SlimeManager {
     private val loaders = mutableMapOf<SlimeLoaderTypeEnum, SlimeLoader>()
 
     fun registerLoader(type: SlimeLoaderTypeEnum): Boolean {
-        val config = ConfigManager.getDatasourcesConfig()
-
-        when (type) {
-            SlimeLoaderTypeEnum.FILE -> {
-                val fileConfig = config.getFileConfig()
-                loaders.put(SlimeLoaderTypeEnum.FILE, FileLoader(File(fileConfig.getPath())))
-            }
-
-            SlimeLoaderTypeEnum.MYSQL -> {
-                val mysqlConfig = config.getMysqlConfig()
-                if (mysqlConfig.isEnabled()) {
-                    try {
-                        loaders.put(
-                            SlimeLoaderTypeEnum.MYSQL, MysqlLoader(
-                                mysqlConfig.url,
-                                mysqlConfig.getHost(),
-                                mysqlConfig.getPort(),
-                                mysqlConfig.getDatabase(),
-                                mysqlConfig.isUseSsl(),
-                                mysqlConfig.getUsername(),
-                                mysqlConfig.getPassword()
-                            )
-                        )
-                    }catch (ex: SQLException) {
-                        logger.error("Failed to connect to MySQL database", ex)
-                        false
-                    }
-                }
-            }
-
-            SlimeLoaderTypeEnum.MONGODB -> {
-                val mongoConfig = config.getMongoDbConfig()
-                if (mongoConfig.isEnabled()) {
-                    try {
-                        loaders.put(SlimeLoaderTypeEnum.MONGODB, MongoLoader(
-                            mongoConfig.getDatabase(),
-                            mongoConfig.getCollection(),
-                            mongoConfig.getUsername(),
-                            mongoConfig.getPassword(),
-                            mongoConfig.getAuthSource(),
-                            mongoConfig.getHost(),
-                            mongoConfig.getPort(),
-                            mongoConfig.getUri()
-                        ))
-                    } catch (ex: MongoException) {
-                        logger.error("Failed to connect to MongoDB database", ex)
-                        false
-                    }
-                }
-            }
+        if (loaders.containsKey(type)) {
+            logger.info("Loader for ${type.name} is already registered. Skipping re-registration.")
+            return true
         }
 
-        return true
+        try {
+            loaders[type] = type.createLoader()
+            return true
+        } catch (ex: Exception) {
+            logger.error("Failed to register loader for ${type.name}", ex)
+            return false
+        }
     }
 
     fun getLoader(type: SlimeLoaderTypeEnum): SlimeLoader? =
