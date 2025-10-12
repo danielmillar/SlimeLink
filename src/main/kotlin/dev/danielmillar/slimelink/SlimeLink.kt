@@ -4,7 +4,6 @@ import ch.njol.skript.Skript
 import ch.njol.skript.SkriptAddon
 import com.infernalsuite.asp.api.AdvancedSlimePaperAPI
 import dev.danielmillar.slimelink.config.ConfigManager
-import dev.danielmillar.slimelink.platform.ServerPlatform
 import dev.danielmillar.slimelink.skript.Types
 import org.bukkit.plugin.java.JavaPlugin
 
@@ -16,22 +15,25 @@ class SlimeLink : JavaPlugin() {
             return instance
         }
 
-        private val ASP: AdvancedSlimePaperAPI = AdvancedSlimePaperAPI.instance()
-
+        private lateinit var ASP: AdvancedSlimePaperAPI
         fun getASP(): AdvancedSlimePaperAPI {
             return ASP
         }
     }
 
     private lateinit var addon: SkriptAddon
-    lateinit var platform: ServerPlatform
-        private set
 
     override fun onEnable() {
         instance = this
 
-        platform = ServerPlatform.detect()
-        slF4JLogger.info("Platform Detected: We're running ${platform.name}")
+        try {
+            Class.forName("com.infernalsuite.asp.AdvancedSlimePaper")
+            ASP = AdvancedSlimePaperAPI.instance()
+        } catch (_: ClassNotFoundException) {
+            slF4JLogger.error("AdvancedSlimePaper is not installed! Disabling plugin.")
+            server.pluginManager.disablePlugin(this)
+            return
+        }
 
         try {
             ConfigManager.initialize()
