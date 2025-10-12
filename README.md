@@ -1,7 +1,7 @@
 <p align="center"><img width="125px" src="./public/SlimeBlock.png" alt="SlimeLink Logo"></p>
 
 <h1 align="center">SlimeLink</h1>
-<p align="center">A modern Skript addon for seamless interaction with AdvancedSlimeWorldManager.</p>
+<p align="center">A modern Skript addon for seamless interaction with AdvancedSlimePaper.</p>
 
 ---
 
@@ -17,7 +17,7 @@
 > SlimeLink is still in development. Some features are implemented; others remain pending. Bugs and data loss may occur,
 > use at your own risk.
 
-SlimeLink lets you access the AdvancedSlimeWorldManager API directly from Skript,
+SlimeLink lets you access the AdvancedSlimePaper API directly from Skript,
 using clean and intuitive syntax to easily create, load, save, and delete worlds.
 
 ---
