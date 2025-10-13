@@ -4,6 +4,13 @@
 <p align="center">A modern Skript addon for seamless interaction with AdvancedSlimePaper.</p>
 
 ---
+## Download
+
+[![Modrinth](https://img.shields.io/badge/Modrinth-SlimeLink-brightgreen?logo=modrinth&style=for-the-badge)](https://modrinth.com/plugin/slimelink)
+
+All official release and development builds are available on [Modrinth](https://modrinth.com/plugin/slimelink).
+
+---
 
 ## Documentation
 
