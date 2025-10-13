@@ -21,6 +21,7 @@ class SlimeLink : JavaPlugin() {
         }
     }
 
+    private lateinit var metrics: Metrics
     private lateinit var addon: SkriptAddon
 
     override fun onEnable() {
@@ -34,6 +35,8 @@ class SlimeLink : JavaPlugin() {
             server.pluginManager.disablePlugin(this)
             return
         }
+
+        metrics = Metrics(this, 27582)
 
         try {
             ConfigManager.initialize()
@@ -50,5 +53,7 @@ class SlimeLink : JavaPlugin() {
         }
     }
 
-    override fun onDisable() {}
+    override fun onDisable() {
+        metrics.shutdown()
+    }
 }
