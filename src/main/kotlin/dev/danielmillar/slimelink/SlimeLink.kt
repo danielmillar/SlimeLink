@@ -1,5 +1,6 @@
 package dev.danielmillar.slimelink
 
+import Metrics
 import ch.njol.skript.Skript
 import ch.njol.skript.SkriptAddon
 import com.infernalsuite.asp.api.AdvancedSlimePaperAPI

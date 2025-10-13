@@ -1,5 +1,3 @@
-package dev.danielmillar.slimelink;
-
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
