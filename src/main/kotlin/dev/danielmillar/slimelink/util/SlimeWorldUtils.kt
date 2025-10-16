@@ -9,11 +9,15 @@ import dev.danielmillar.slimelink.config.WorldData
 import dev.danielmillar.slimelink.slime.SlimeLoaderTypeEnum
 import dev.danielmillar.slimelink.slime.SlimeManager
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.requireWorldNotLoaded
+import io.papermc.paper.command.brigadier.argument.ArgumentTypes.players
 import org.bukkit.Bukkit
 import org.bukkit.Bukkit.unloadWorld
 import org.bukkit.Location
 import org.bukkit.World
+import org.bukkit.scheduler.BukkitRunnable
 import java.util.concurrent.CompletableFuture
+import kotlin.jvm.java
+import kotlin.streams.toList
 import kotlin.system.measureTimeMillis
 
 object SlimeWorldUtils {
@@ -246,19 +250,39 @@ object SlimeWorldUtils {
         worldData: WorldData,
     ) {
         val plugin = SlimeLink.getInstance()
-        Bukkit.getScheduler().runTask(plugin, Runnable {
-            val time = measureTimeMillis {
-                if (worldData.isReadOnly()) {
-                    unloadWorld(bukkitWorld, false)
-                } else {
-                    ConfigManager.getWorldConfig().setWorld(worldName, worldData)
-                    ConfigManager.saveWorldConfig()
 
-                    unloadWorld(bukkitWorld, true)
+        var attempts = 0
+        val maxAttempts = 10
+        object : BukkitRunnable() {
+            override fun run() {
+                if (Bukkit.isTickingWorlds()) {
+                    if (++attempts >= maxAttempts) {
+                        Skript.error("Failed to unload world '$worldName' after waiting for ticking to stop.")
+                        cancel()
+                    }
+                    return
+                }
+
+                cancel()
+                var success: Boolean
+                val time = measureTimeMillis {
+                    if (worldData.isReadOnly()) {
+                        success = unloadWorld(bukkitWorld, false)
+                    } else {
+                        ConfigManager.getWorldConfig().setWorld(worldName, worldData)
+                        ConfigManager.saveWorldConfig()
+
+                        success = unloadWorld(bukkitWorld, true)
+                    }
+                }
+
+                if (success) {
+                    Skript.info("Successfully unloaded world '$worldName' in ${time}ms")
+                } else {
+                    Skript.error("Failed to unload world '$worldName' in ${time}ms, it may still be loaded")
                 }
             }
-            Skript.info("Successfully unloaded world '$worldName' in ${time}ms")
-        })
+        }.runTaskTimer(plugin, 0L, 5L)
     }
 
     /**
@@ -310,11 +334,13 @@ object SlimeWorldUtils {
         teleportTarget: Location
     ) {
         val playersInWorld = bukkitWorld.players
-        val futures = playersInWorld.map { it.teleportAsync(teleportTarget) }
-        val allOfFuture = CompletableFuture.allOf(*futures.toTypedArray())
+        val completableFuture = CompletableFuture.allOf(*playersInWorld.map { it.teleportAsync(teleportTarget) }.toTypedArray())
 
-        allOfFuture.thenRun {
+        completableFuture.thenRun {
             unloadWorldSync(worldName, bukkitWorld, worldData)
+        }.exceptionally {
+            Skript.error("Failed to teleport players and unload world '$worldName': ${it.message}")
+            null
         }
     }
 }
