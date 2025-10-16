@@ -31,7 +31,7 @@ import kotlin.system.measureTimeMillis
 @Examples(
     value = [
         "clone slimeworld from \"Test\" to \"TestCopy\"",
-        "clone slime world from \"MyWorld\" to \"MyWorldBackup\" with datasource mysql",
+        "clone slime world from \"MyWorld\" to \"MyWorldBackup\" as ReadOnly with datasource mysql",
     ]
 )
 @Since("1.0.0")
@@ -41,7 +41,7 @@ class EffCloneWorld : Effect() {
 		init {
 			Skript.registerEffect(
 				EffCloneWorld::class.java,
-				"clone (slimeworld|slime world) from %string% to %string% [newsource: with [datasource|data source] %-slimeloader%]"
+				"clone (slimeworld|slime world) from %string% to %string% [readonly:as ReadOnly] [newsource: with [datasource|data source] %-slimeloader%]"
 			)
 		}
 	}
@@ -50,6 +50,7 @@ class EffCloneWorld : Effect() {
 	private lateinit var targetWorldName: Expression<String>
 	private var isNewSource = false
 	private var loaderType: Expression<SlimeLoaderTypeEnum>? = null
+    private var isReadOnly: Boolean? = null
 
 	override fun toString(event: Event?, debug: Boolean): String? {
 		val source = sourceWorldName.toString(event, debug)
@@ -71,6 +72,7 @@ class EffCloneWorld : Effect() {
 		if (expressions.size > 2 && expressions[2] != null) {
 			loaderType = expressions[2] as Expression<SlimeLoaderTypeEnum>
 		}
+        isReadOnly = parseResult?.hasTag("readonly")
 		return true
 	}
 
@@ -103,12 +105,14 @@ class EffCloneWorld : Effect() {
 				requireLoader(loader)
 			}
 
+            sourceWorldData.setReadOnly(isReadOnly ?: sourceWorldData.isReadOnly())
+
 			Bukkit.getScheduler().runTaskAsynchronously(SlimeLink.getInstance(), Runnable {
 				val time = measureTimeMillis {
 					val slimeWorld = SlimeLink.getASP().readWorld(
 						datasource,
 						sourceName,
-						false,
+                        sourceWorldData.isReadOnly(),
 						sourceWorldData.toPropertyMap()
 					)
 

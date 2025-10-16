@@ -40,8 +40,12 @@ data class WorldData(
     private val defaultBiome: String = "minecraft:plains",
 
     @Setting("readOnly")
-    private val readOnly: Boolean = false
+    private var readOnly: Boolean = false
 ) {
+    fun setReadOnly(readOnly: Boolean) {
+        this.readOnly = readOnly
+    }
+
     fun getSource(): String = source
     fun getSpawn(): List<Double> = spawn
     fun getDifficulty(): Difficulty = difficulty
