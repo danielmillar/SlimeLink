@@ -15,9 +15,10 @@ import com.infernalsuite.asp.api.world.properties.SlimePropertyMap
 import dev.danielmillar.slimelink.slime.SlimePropertiesEnum
 import dev.danielmillar.slimelink.util.Util
 import org.bukkit.event.Event
+import kotlin.jvm.java
 
-@Name("Check Slime Property")
-@Description("This condition allows you to check if a slime property in a SlimePropertyMap has a certain value.")
+@Name("Slime Property Value")
+@Description("Check the value of a SlimeProperty in a SlimePropertyMap.")
 @Examples(
     value = [
         "if slime property spawn x of slimePropertyMap is 5",
@@ -31,7 +32,7 @@ class CondSlimePropertyValue : Condition() {
         init {
             Skript.registerCondition(
                 CondSlimePropertyValue::class.java,
-                "slime property %slimeproperty% of %slimepropertymap% (1¦is|2¦is(n't| not)) %object%"
+                "slime property %slimeproperty% of %slimepropertymap% (is|1:is(n't| not)) %object%"
             )
         }
     }
@@ -54,12 +55,12 @@ class CondSlimePropertyValue : Condition() {
         expressions: Array<out Expression<*>?>,
         matchedPattern: Int,
         isDelayed: Kleenean?,
-        parseResult: SkriptParser.ParseResult?
+        parseResult: SkriptParser.ParseResult
     ): Boolean {
         slimePropertyType = expressions[0] as Expression<SlimePropertiesEnum>
         slimeProperties = expressions[1] as Expression<SlimePropertyMap>
         value = LiteralUtils.defendExpression(expressions[2])
-        isNegated = parseResult?.mark == 2
+        isNegated = parseResult.hasTag("1")
         return LiteralUtils.canInitSafely(value)
     }
 

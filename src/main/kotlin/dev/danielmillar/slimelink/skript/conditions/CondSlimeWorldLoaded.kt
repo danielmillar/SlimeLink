@@ -11,17 +11,14 @@ import ch.njol.skript.lang.SkriptParser
 import ch.njol.util.Kleenean
 import org.bukkit.Bukkit
 import org.bukkit.event.Event
+import kotlin.jvm.java
 
-@Name("Check Slime World Loaded")
-@Description("This conditions checks if a specific SlimeWorld is loaded or not.")
+@Name("SlimeWorld Loaded")
+@Description("Check if a SlimeWorld is currently loaded on the server.")
 @Examples(
     value = [
-        "if slime world named \"exampleWorld\" is loaded:",
-        "    broadcast \"World is currently loaded!\"",
-        "if slimeworld named \"testWorld\" isn't loaded:",
-        "    load slime world named \"testWorld\"",
-        "if slime world named \"anotherWorld\" is not loaded:",
-        "    broadcast \"World needs to be loaded first!\""
+        "if slime world named \"MySlimeWorld\" is loaded:",
+        "if slime world named \"MySlimeWorld\" isn't loaded:",
     ]
 )
 @Since("1.0.0")
@@ -31,7 +28,7 @@ class CondSlimeWorldLoaded : Condition() {
         init {
             Skript.registerCondition(
                 CondSlimeWorldLoaded::class.java,
-                "(slimeworld|slime world) named %string% (1¦is|2¦is(n't| not)) loaded"
+                "(slimeworld|slime world) named %string% (is|1:is(n't| not)) loaded"
             )
         }
     }
@@ -47,10 +44,10 @@ class CondSlimeWorldLoaded : Condition() {
         expressions: Array<out Expression<*>?>,
         matchedPattern: Int,
         isDelayed: Kleenean?,
-        parseResult: SkriptParser.ParseResult?
+        parseResult: SkriptParser.ParseResult
     ): Boolean {
         worldName = expressions[0] as Expression<String>
-        isNegated = parseResult?.mark == 2
+        isNegated = parseResult.hasTag("1")
         return true
     }
 
@@ -60,10 +57,7 @@ class CondSlimeWorldLoaded : Condition() {
         val worldNameValue = worldName.getSingle(event) ?: return false
         val bukkitWorld = Bukkit.getWorld(worldNameValue)
 
-        return if (isNegated) {
-            bukkitWorld == null
-        } else {
-            bukkitWorld != null
-        }
+        val isLoaded = bukkitWorld != null
+        return if (isNegated) !isLoaded else isLoaded
     }
 }

@@ -11,17 +11,15 @@ import ch.njol.skript.lang.SkriptParser
 import ch.njol.util.Kleenean
 import dev.danielmillar.slimelink.config.ConfigManager
 import org.bukkit.event.Event
+import kotlin.jvm.java
 
-@Name("Check Slime World ReadOnly")
-@Description("This condition checks if a specific SlimeWorld is read only or not.")
+@Name("SlimeWorld ReadOnly")
+@Description("Check if a SlimeWorld is set to read-only")
 @Examples(
     value = [
-        "if slime world named \"exampleWorld\" is readonly:",
-        "    broadcast \"World is read-only!\"",
-        "if slimeworld named \"testWorld\" isn't readonly:",
-        "    broadcast \"World can be modified!\"",
-        "if slime world named \"anotherWorld\" is not readonly:",
-        "    broadcast \"World can be modified!\""
+        "if slime world named \"MySlimeWorld\" is readonly:",
+        "if slime world named \"MySlimeWorld\" isn't readonly:",
+        "if slime world named \"MySlimeWorld\" is not readonly:",
     ]
 )
 @Since("1.0.0")
@@ -31,7 +29,7 @@ class CondSlimeWorldReadOnly : Condition() {
         init {
             Skript.registerCondition(
                 CondSlimeWorldReadOnly::class.java,
-                "(slimeworld|slime world) named %string% (1¦is|2¦is(n't| not)) readonly"
+                "(slimeworld|slime world) named %string% (is|1:is(n't| not)) (readonly|read-only)"
             )
         }
     }
@@ -39,7 +37,7 @@ class CondSlimeWorldReadOnly : Condition() {
     private lateinit var worldName: Expression<String>
 
     override fun toString(event: Event?, debug: Boolean): String {
-        return "${worldName.toString(event, debug)} ${if (isNegated) "isn't" else "is"} readonly"
+        return "slime world named ${worldName.toString(event, debug)} ${if (isNegated) "isn't read-only" else "is read-only"}"
     }
 
     @Suppress("unchecked_cast")
@@ -47,10 +45,10 @@ class CondSlimeWorldReadOnly : Condition() {
         expressions: Array<out Expression<*>?>,
         matchedPattern: Int,
         isDelayed: Kleenean?,
-        parseResult: SkriptParser.ParseResult?
+        parseResult: SkriptParser.ParseResult
     ): Boolean {
         worldName = expressions[0] as Expression<String>
-        isNegated = parseResult?.mark == 2
+        isNegated = parseResult.hasTag("1")
         return true
     }
 
@@ -65,10 +63,7 @@ class CondSlimeWorldReadOnly : Condition() {
             return false
         }
 
-        return if (isNegated) {
-            !worldData.isReadOnly()
-        } else {
-            worldData.isReadOnly()
-        }
+        val isReadOnly = worldData.isReadOnly()
+        return if (isNegated) !isReadOnly else isReadOnly
     }
 }
