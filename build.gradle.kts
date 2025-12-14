@@ -1,6 +1,6 @@
 plugins {
-    kotlin("jvm") version "2.2.20"
-    id("com.gradleup.shadow") version "8.3.0"
+    kotlin("jvm") version "2.3.0-RC3"
+    id("com.gradleup.shadow") version "9.3.0"
 }
 
 group = "dev.danielmillar"
@@ -23,8 +23,8 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.21.10-R0.1-SNAPSHOT")
-    compileOnly("com.github.SkriptLang:Skript:2.12.2")
+    compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
+    compileOnly("com.github.SkriptLang:Skript:2.13.2")
     compileOnly("com.infernalsuite.asp:api:4.0.0-SNAPSHOT")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
@@ -32,7 +32,7 @@ dependencies {
     implementation("org.spongepowered:configurate-yaml:4.2.0")
 }
 
-val targetJavaVersion = 21
+val targetJavaVersion = 25
 kotlin {
     jvmToolchain(targetJavaVersion)
 }
