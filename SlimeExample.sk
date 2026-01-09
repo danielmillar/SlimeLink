@@ -1,0 +1,78 @@
+# SlimeLink Example Skript
+# This Skript demonstrates how to create, load, unload, save, delete, and clone Slime worlds using the SlimeLink plugin.
+
+on load:
+	if {-loader} is not set:
+		# Create a new Slime loader for type 'file', used for file-based world storage
+		set {-loader} to new slime loader from file
+
+		# Alternatively, you can create loaders for other storage types:
+		# set {-loader} to new slime loader from mysql
+		# set {-loader} to new slime loader from mongodb
+
+	if {-props} is not set:
+		# Create new Slime world properties with default settings
+		set {-props} to new slime world properties
+
+# Create a Slime world with the specified name, loader, and properties
+command /createslimeworld:
+	description: Creates a new Slime world
+	usage: /createslimeworld
+	trigger:
+		# Expression:
+		set {_world} to create slime world named "myworld" with {-loader} using {-props}
+
+		# Effect:
+		create slime world named "myworld" with {-loader} using {-props}
+
+# Teleport the player to the Slime world to test it
+command /testslimeworld:
+	description: Tests the Slime world by teleporting the player there
+	usage: /testslimeworld
+	trigger:
+		teleport player to location(0, 100, 0, world "myworld")
+
+# Unload the Slime world without saving, teleporting players to a safe location
+command /unloadslimeworld:
+	description: Unloads the Slime world
+	usage: /unloadslimeworld
+	trigger:
+		unload slime world "myworld" without saving teleporting players to location(0, 150, 0, world "world")
+
+# Load the Slime world from specified loader
+command /loadslimeworld:
+	description: Loads the Slime world
+	usage: /loadslimeworld
+	trigger:
+		load slime world "myworld" with {-loader}
+
+# Save the Slime world to its loader
+command /saveslimeworld:
+	description: Saves the Slime world
+	usage: /saveslimeworld
+	trigger:
+		save slime world "myworld"
+
+# Delete the Slime world from its loader
+command /deleteslimeworld:
+	description: Deletes the Slime world
+	usage: /deleteslimeworld
+	trigger:
+		delete slime world "myworld" from {-loader} 
+
+# Clone the Slime world to a new world with a different name
+command /cloneslimeworld:
+	description: Clones the Slime world
+	usage: /cloneslimeworld
+	trigger:
+		clone slime world "myworld" to "myworld_clone" with {-loader} using {-props}
+
+# Check if the Slime world is loaded
+command /worldloaded:
+	description: Checks if the Slime world is loaded
+	usage: /worldloaded
+	trigger:
+		if slime world named "myworld" is loaded:
+			broadcast "Slime world 'myworld' is loaded!"
+		else:
+			broadcast "Slime world 'myworld' is not loaded!"
