@@ -5,22 +5,24 @@ import ch.njol.skript.Skript
 import ch.njol.skript.SkriptAddon
 import com.infernalsuite.asp.api.AdvancedSlimePaperAPI
 import dev.danielmillar.slimelink.config.ConfigManager
+import dev.danielmillar.slimelink.config.SourcesConfig
 import dev.danielmillar.slimelink.skript.Types
 import org.bukkit.plugin.java.JavaPlugin
 
 class SlimeLink : JavaPlugin() {
 
     companion object {
-        private lateinit var instance: SlimeLink
-        fun getInstance(): SlimeLink {
-            return instance
-        }
-
-        private lateinit var ASP: AdvancedSlimePaperAPI
-        fun getASP(): AdvancedSlimePaperAPI {
-            return ASP
-        }
+        lateinit var instance: SlimeLink
+            private set
+        
+        val asp: AdvancedSlimePaperAPI
+            get() = instance._asp ?: error("ASP not initialized")
     }
+
+    private var _asp: AdvancedSlimePaperAPI? = null
+
+    lateinit var configManager: ConfigManager
+        private set
 
     private lateinit var metrics: Metrics
     private lateinit var addon: SkriptAddon
@@ -28,33 +30,42 @@ class SlimeLink : JavaPlugin() {
     override fun onEnable() {
         instance = this
 
-        try {
+        val aspClass = try {
             Class.forName("com.infernalsuite.asp.AdvancedSlimePaper")
-            ASP = AdvancedSlimePaperAPI.instance()
+            true
         } catch (_: ClassNotFoundException) {
+            false
+        }
+
+        if (!aspClass) {
             slF4JLogger.error("AdvancedSlimePaper is not installed! Disabling plugin.")
             server.pluginManager.disablePlugin(this)
             return
         }
+        _asp = AdvancedSlimePaperAPI.instance()
+
+        configManager = ConfigManager(this.dataPath, slF4JLogger).apply {
+            register<SourcesConfig>("sources.yml",) {
+                SourcesConfig()
+            }
+        }
+        configManager.saveAll()
 
         metrics = Metrics(this, 27582)
 
-        try {
-            ConfigManager.initialize()
-        } catch (ex: Exception) {
-            slF4JLogger.error("Failed to load config files", ex)
-        }
-
         addon = Skript.registerAddon(this).setLanguageFileDirectory("lang")
-        try {
+        runCatching {
             Types()
             addon.loadClasses("dev.danielmillar.slimelink")
-        } catch (ex: Exception) {
-            slF4JLogger.error("Failed to load Skript classes", ex)
+        }.onFailure {
+            slF4JLogger.error("Failed to load classes required for Skript, Disabling plugin.")
+            server.pluginManager.disablePlugin(this)
         }
     }
 
     override fun onDisable() {
-        metrics.shutdown()
+        if (::metrics.isInitialized) {
+            metrics.shutdown()
+        }
     }
 }

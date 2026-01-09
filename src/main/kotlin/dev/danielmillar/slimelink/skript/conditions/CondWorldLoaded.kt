@@ -11,23 +11,26 @@ import ch.njol.skript.lang.SkriptParser
 import ch.njol.util.Kleenean
 import org.bukkit.Bukkit
 import org.bukkit.event.Event
-import kotlin.jvm.java
 
-@Name("SlimeWorld Loaded")
-@Description("Check if a SlimeWorld is currently loaded on the server.")
+@Name("SlimeWorld - Is Loaded")
+@Description(
+    "This condition checks if a SlimeWorld is loaded or not",
+    "Internally this just checks if a Bukkit world can be found.")
 @Examples(
     value = [
+        "if slimeworld named \"MySlimeWorld\" is loaded:",
+        "if slimeworld named \"MySlimeWorld\" isn't loaded:",
         "if slime world named \"MySlimeWorld\" is loaded:",
-        "if slime world named \"MySlimeWorld\" isn't loaded:",
+        "if slime world named \"MySlimeWorld\" is not loaded:",
     ]
 )
 @Since("1.0.0")
-class CondSlimeWorldLoaded : Condition() {
+class CondWorldLoaded : Condition() {
 
     companion object {
         init {
             Skript.registerCondition(
-                CondSlimeWorldLoaded::class.java,
+                CondWorldLoaded::class.java,
                 "(slimeworld|slime world) named %string% (is|1:is(n't| not)) loaded"
             )
         }
@@ -35,29 +38,26 @@ class CondSlimeWorldLoaded : Condition() {
 
     private lateinit var worldName: Expression<String>
 
-    override fun toString(event: Event?, debug: Boolean): String {
-        return "${worldName.toString(event, debug)} ${if (isNegated) "isn't" else "is"} loaded"
-    }
-
     @Suppress("unchecked_cast")
     override fun init(
         expressions: Array<out Expression<*>?>,
         matchedPattern: Int,
         isDelayed: Kleenean?,
-        parseResult: SkriptParser.ParseResult
+        parser: SkriptParser.ParseResult
     ): Boolean {
-        worldName = expressions[0] as Expression<String>
-        isNegated = parseResult.hasTag("1")
+        worldName = expressions.getOrNull(0) as? Expression<String> ?: return false
+        isNegated = parser.hasTag("1")
+
         return true
     }
 
-    override fun check(event: Event?): Boolean {
-        if (event == null) return false
+    override fun check(event: Event): Boolean {
+        val name = worldName.getSingle(event) ?: return false
+        val worldExists = Bukkit.getWorld(name) != null
+        return worldExists != isNegated
+    }
 
-        val worldNameValue = worldName.getSingle(event) ?: return false
-        val bukkitWorld = Bukkit.getWorld(worldNameValue)
-
-        val isLoaded = bukkitWorld != null
-        return if (isNegated) !isLoaded else isLoaded
+    override fun toString(event: Event?, debug: Boolean): String {
+        return "${worldName.toString(event, debug)} ${if (isNegated) "isn't" else "is"} loaded"
     }
 }

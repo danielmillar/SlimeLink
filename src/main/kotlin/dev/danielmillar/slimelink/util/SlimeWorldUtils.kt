@@ -2,13 +2,9 @@ package dev.danielmillar.slimelink.util
 
 import ch.njol.skript.Skript
 import com.infernalsuite.asp.api.loaders.SlimeLoader
+import com.infernalsuite.asp.api.world.SlimeWorld
 import com.infernalsuite.asp.api.world.properties.SlimePropertyMap
 import dev.danielmillar.slimelink.SlimeLink
-import dev.danielmillar.slimelink.config.ConfigManager
-import dev.danielmillar.slimelink.config.WorldData
-import dev.danielmillar.slimelink.slime.SlimeLoaderTypeEnum
-import dev.danielmillar.slimelink.slime.SlimeManager
-import dev.danielmillar.slimelink.util.SlimeWorldUtils.requireWorldNotLoaded
 import org.bukkit.Bukkit
 import org.bukkit.Bukkit.unloadWorld
 import org.bukkit.Location
@@ -47,7 +43,6 @@ object SlimeWorldUtils {
 
 	/**
 	 * Ensures that no Bukkit world with the given name is loaded.
-	 * Use in creation flows to prevent name collisions.
 	 *
 	 * @param name the name of the world to check
 	 * @param message the exception message if the world is already loaded
@@ -61,104 +56,69 @@ object SlimeWorldUtils {
 	}
 
 	/**
-	 * Ensures that no loaded world with the given name exists.
-	 * Alias for [requireWorldNotLoaded] with a different default message.
-	 *
-	 * @param name the name of the world to check
-	 * @param message the exception message if the world is already loaded
-	 * @throws IllegalArgumentException if a loaded world with [name] exists
-	 */
-	fun requireWorldNotExists(
-		name: String,
-		message: String = "A loaded world with that name already exists!"
-	) {
-		require(Bukkit.getWorld(name) == null) { message }
-	}
-
-	/**
-	 * Ensures that no world data for the given name exists in the plugin config.
-	 *
-	 * @param worldName the name of the world to check in config
-	 * @param message the exception message if config entry exists
-	 * @throws IllegalArgumentException if config already contains [worldName]
-	 */
-	fun requireWorldDataNotExists(
-		worldName: String,
-		message: String = "World $worldName already exists in config"
-	) {
-		val worldData = ConfigManager.getWorldConfig().getWorld(worldName)
-		require(worldData == null) { message }
-	}
-
-	/**
-	 * Ensures that a world config entry exists for the given name.
-	 *
-	 * @param worldName the name of the world to fetch from config
-	 * @param message the exception message if config entry is missing
-	 * @return the plugin [WorldData] for [worldName]
-	 * @throws IllegalArgumentException if no config entry for [worldName]
-	 */
-	fun requireWorldDataExists(
-		worldName: String,
-		message: String = "World $worldName cannot be found in config"
-	): WorldData =
-		requireNotNull(ConfigManager.getWorldConfig().getWorld(worldName)) {
-			message
-		}
-
-	/**
-	 * Ensures a [SlimeLoader] for the given type is registered.
-	 *
-	 * @param type the [SlimeLoaderTypeEnum] to retrieve
-	 * @param message the exception message if loader is not registered
-	 * @return the non-null [SlimeLoader] instance
-	 * @throws IllegalArgumentException if no loader for [type] is registered
-	 */
-	fun requireLoader(
-		type: SlimeLoaderTypeEnum,
-		message: String = "Loader '${type.name}' is not registered. Please initialize it first."
-	): SlimeLoader =
-		requireNotNull(SlimeManager.getLoader(type)) {
-			message
-		}
-
-	/**
-	 * Creates and saves a new Slime world off the main thread, then loads it and updates config on the main thread.
+	 * Creates a newSlime world on the main thread without saving or loading it.
 	 *
 	 * @param worldName the unique name of the world to create
 	 * @param properties the [SlimePropertyMap] used for creation
 	 * @param loader the [SlimeLoader] to handle storage
-	 * @param loaderName the identifier used in the [WorldData.source]
 	 * @param readOnly whether the new world should be marked read-only
+	 * @return the in-memory representation [SlimeWorld]
 	 */
-	fun createAndLoadWorldAsync(
+	fun createWorldSync(
 		worldName: String,
 		properties: SlimePropertyMap,
 		loader: SlimeLoader,
-		loaderName: String,
 		readOnly: Boolean
-	) {
-		val plugin = SlimeLink.getInstance()
-		Bukkit.getScheduler().runTaskAsynchronously(plugin, Runnable {
+	): SlimeWorld? {
+		return try {
+			var slimeWorld: SlimeWorld? = null
 			val time = measureTimeMillis {
-				val slimeWorld = SlimeLink.getASP().createEmptyWorld(
+				slimeWorld = SlimeLink.asp.createEmptyWorld(
 					worldName,
 					readOnly,
 					properties,
 					loader
 				)
-				SlimeLink.getASP().saveWorld(slimeWorld)
-
-				Bukkit.getScheduler().runTask(plugin, Runnable {
-					SlimeLink.getASP().loadWorld(slimeWorld, true)
-
-					val worldData = WorldData(source = loaderName, readOnly = readOnly)
-					ConfigManager.getWorldConfig().setWorld(worldName, worldData)
-					ConfigManager.saveWorldConfig()
-				})
 			}
-
 			Skript.info("Successfully created world '$worldName' in ${time}ms")
+			slimeWorld
+		} catch (e: Exception) {
+			Skript.error("Failed to create world '$worldName': ${e.message}")
+			null
+		}
+	}
+
+	/**
+	 * Creates and saves a new Slime world off the main thread without loading it.
+	 *
+	 * @param worldName the unique name of the world to create
+	 * @param properties the [SlimePropertyMap] used for creation
+	 * @param loader the [SlimeLoader] to handle storage
+	 * @param readOnly whether the new world should be marked read-only
+	 */
+	fun createWorldAsync(
+		worldName: String,
+		properties: SlimePropertyMap,
+		loader: SlimeLoader,
+		readOnly: Boolean
+	) {
+		val plugin = SlimeLink.instance
+		Bukkit.getScheduler().runTaskAsynchronously(plugin, Runnable {
+			try {
+				val time = measureTimeMillis {
+					val slimeWorld = SlimeLink.asp.createEmptyWorld(
+						worldName,
+						readOnly,
+						properties,
+						loader
+					)
+					SlimeLink.asp.saveWorld(slimeWorld)
+				}
+
+				Skript.info("Successfully created world '$worldName' in ${time}ms")
+			} catch (e: Exception) {
+				Skript.error("Failed to create world '$worldName': ${e.message}")
+			}
 		})
 	}
 
@@ -170,61 +130,153 @@ object SlimeWorldUtils {
 	 * @param readOnly whether to open the world in read-only mode
 	 * @param properties the [SlimePropertyMap] for reading
 	 */
-	fun loadWorldAsync(
+	fun loadWorldSync(
 		worldName: String,
 		loader: SlimeLoader,
 		readOnly: Boolean,
 		properties: SlimePropertyMap
 	) {
-		val plugin = SlimeLink.getInstance()
+		val plugin = SlimeLink.instance
 		Bukkit.getScheduler().runTaskAsynchronously(plugin, Runnable {
-			val time = measureTimeMillis {
-				val slimeWorld = SlimeLink.getASP().readWorld(loader, worldName, readOnly, properties)
+			try {
+				val time = measureTimeMillis {
+					val slimeWorld = SlimeLink.asp.readWorld(loader, worldName, readOnly, properties)
 
-				Bukkit.getScheduler().runTask(plugin, Runnable {
-					SlimeLink.getASP().loadWorld(slimeWorld, true)
-				})
+					Bukkit.getScheduler().runTask(plugin, Runnable {
+						SlimeLink.asp.loadWorld(slimeWorld, true)
+					})
+				}
+				Skript.info("Successfully loaded world '$worldName' in ${time}ms")
+			} catch (e: Exception) {
+				Skript.error("Failed to load world '$worldName': ${e.message}")
 			}
-			Skript.info("Successfully loaded world '$worldName' in ${time}ms")
 		})
 	}
 
 	/**
-	 * Imports a vanilla world off the main thread, then loads it and updates config on the main thread.
+	 * Loads a Slime World on main thread
+	 *
+	 * @param world the slime world object to load
+	 */
+	fun loadWorldSync(
+		world: SlimeWorld,
+	) {
+		try {
+			val time = measureTimeMillis {
+				SlimeLink.asp.loadWorld(world, true)
+			}
+			Skript.info("Successfully loaded world '${world.name}' in ${time}ms")
+		} catch (e: Exception) {
+			Skript.error("Failed to load world '${world.name}': ${e.message}")
+		}
+	}
+
+	/**
+	 * Imports a vanilla world off the main thread, then loads it on the main thread.
 	 *
 	 * @param vanillaWorldPath the [File] path to the vanilla world folder
 	 * @param slimeWorldName the unique name of the new Slime world
-	 * @param loaderType the [SlimeLoaderTypeEnum] used in config
 	 * @param loader the [SlimeLoader] to handle storage
 	 */
 	fun importSlimeWorldFromVanillaWorld(
 		vanillaWorldPath: File,
 		slimeWorldName: String,
-		loaderType: SlimeLoaderTypeEnum,
 		loader: SlimeLoader
 	) {
-		val plugin = SlimeLink.getInstance()
+		val plugin = SlimeLink.instance
 
 		Bukkit.getScheduler().runTaskAsynchronously(plugin, Runnable {
-			val time = measureTimeMillis {
-				val slimeWorld = SlimeLink.getASP().readVanillaWorld(vanillaWorldPath, slimeWorldName, loader)
-				SlimeLink.getASP().saveWorld(slimeWorld)
+			try {
+				val time = measureTimeMillis {
+					val slimeWorld = SlimeLink.asp.readVanillaWorld(vanillaWorldPath, slimeWorldName, loader)
+					SlimeLink.asp.saveWorld(slimeWorld)
 
-				Bukkit.getScheduler().runTask(plugin, Runnable {
-					SlimeLink.getASP().loadWorld(slimeWorld, true)
+					Bukkit.getScheduler().runTask(plugin, Runnable {
+						SlimeLink.asp.loadWorld(slimeWorld, true)
+					})
+				}
 
-					val worldData = WorldData(source = loaderType.loaderId, readOnly = false)
-					ConfigManager.getWorldConfig().setWorld(slimeWorldName, worldData)
-					ConfigManager.saveWorldConfig()
-				})
+				Skript.info("Successfully imported world '$slimeWorldName' from '$vanillaWorldPath' in ${time}ms")
+			} catch (e: Exception) {
+				Skript.error("Failed to import world '$slimeWorldName': ${e.message}")
 			}
-
-			Skript.info("Successfully imported world '$slimeWorldName' from '$vanillaWorldPath' in ${time}ms")
 		})
 	}
 
 	/**
-	 * Deletes a Slime world and removes it from config off the main thread.
+	 * Clones a Slime world synchronously and returns the cloned world without saving.
+	 *
+	 * @param sourceWorldName the unique name of the source world to clone from
+	 * @param targetWorldName the unique name of the new cloned world
+	 * @param loader the [SlimeLoader] to handle storage
+	 * @param readOnly whether the cloned world should be marked read-only
+	 * @param properties the [SlimePropertyMap] for reading the source world
+	 * @return the cloned [SlimeWorld] or null if cloning failed
+	 */
+	fun cloneWorldSync(
+		sourceWorldName: String,
+		targetWorldName: String,
+		loader: SlimeLoader?,
+		readOnly: Boolean,
+		properties: SlimePropertyMap,
+		storeWithLoader: Boolean = true
+	): SlimeWorld? {
+		return try {
+			var clonedWorld: SlimeWorld? = null
+			val time = measureTimeMillis {
+				val sourceWorld = if (loader != null) {
+					SlimeLink.asp.readWorld(loader, sourceWorldName, readOnly, properties)
+				} else {
+					SlimeLink.asp.getLoadedWorld(sourceWorldName)
+						?: throw IllegalStateException("World '$sourceWorldName' is not loaded. Provide a loader to read from storage.")
+				}
+				clonedWorld = if (loader != null && storeWithLoader) {
+					sourceWorld.clone(targetWorldName, loader)
+				} else {
+					sourceWorld.clone(targetWorldName)
+				}
+			}
+			Skript.info("Successfully cloned world '$sourceWorldName' to '$targetWorldName' in ${time}ms")
+			clonedWorld
+		} catch (e: Exception) {
+			Skript.error("Failed to clone world '$sourceWorldName' to '$targetWorldName': ${e.message}")
+			null
+		}
+	}
+
+	/**
+	 * Clones a Slime world off the main thread and saves it to the loader.
+	 *
+	 * @param sourceWorldName the unique name of the source world to clone from
+	 * @param targetWorldName the unique name of the new cloned world
+	 * @param loader the [SlimeLoader] to handle storage
+	 * @param readOnly whether the cloned world should be marked read-only
+	 * @param properties the [SlimePropertyMap] for reading the source world
+	 */
+	fun cloneWorldAsync(
+		sourceWorldName: String,
+		targetWorldName: String,
+		loader: SlimeLoader,
+		readOnly: Boolean,
+		properties: SlimePropertyMap
+	) {
+		val plugin = SlimeLink.instance
+		Bukkit.getScheduler().runTaskAsynchronously(plugin, Runnable {
+			try {
+				val time = measureTimeMillis {
+					val sourceWorld = SlimeLink.asp.readWorld(loader, sourceWorldName, readOnly, properties)
+					val clonedWorld = sourceWorld.clone(targetWorldName, loader)
+					SlimeLink.asp.saveWorld(clonedWorld)
+				}
+				Skript.info("Successfully cloned world '$sourceWorldName' to '$targetWorldName' in ${time}ms")
+			} catch (e: Exception) {
+				Skript.error("Failed to clone world '$sourceWorldName' to '$targetWorldName': ${e.message}")
+			}
+		})
+	}
+
+	/**
+	 * Deletes a Slime world off the main thread.
 	 *
 	 * @param worldName the unique name of the world to delete
 	 * @param loader the [SlimeLoader] to handle deletion
@@ -233,55 +285,50 @@ object SlimeWorldUtils {
 		worldName: String,
 		loader: SlimeLoader
 	) {
-		val plugin = SlimeLink.getInstance()
+		val plugin = SlimeLink.instance
 		Bukkit.getScheduler().runTaskAsynchronously(plugin, Runnable {
-			val time = measureTimeMillis {
-				loader.deleteWorld(worldName)
-
-				ConfigManager.getWorldConfig().removeWorld(worldName)
-				ConfigManager.saveWorldConfig()
+			try {
+				val time = measureTimeMillis {
+					loader.deleteWorld(worldName)
+				}
+				Skript.info("Successfully deleted world '$worldName' in ${time}ms")
+			} catch (e: Exception) {
+				Skript.error("Failed to delete world '$worldName': ${e.message}")
 			}
-			Skript.info("Successfully deleted world '$worldName' in ${time}ms")
 		})
 	}
 
 	/**
-	 * Saves a Bukkit world and updates config on the main thread.
+	 * Saves a Slime world off the main thread.
 	 *
-	 * @param worldBukkit the [World] instance to save
 	 * @param worldName the unique name of the world
-	 * @param worldData the updated [WorldData] to store
 	 */
 	fun saveWorldSync(
-		worldBukkit: World,
 		worldName: String,
-		worldData: WorldData,
 	) {
-		val plugin = SlimeLink.getInstance()
-		Bukkit.getScheduler().runTask(plugin, Runnable {
+		val plugin = SlimeLink.instance
+		Bukkit.getScheduler().runTaskAsynchronously(plugin, Runnable {
 			val time = measureTimeMillis {
-				worldBukkit.save()
-
-				ConfigManager.getWorldConfig().setWorld(worldName, worldData)
-				ConfigManager.saveWorldConfig()
+                val loadedWorld = SlimeLink.asp.getLoadedWorld(worldName) ?: return@Runnable
+                SlimeLink.asp.saveWorld(loadedWorld)
 			}
 			Skript.info("Successfully saved world '$worldName' in ${time}ms")
 		})
 	}
 
 	/**
-	 * Unloads a Slime world and updates config on the main thread.
+	 * Unloads a Slime world on the main thread.
 	 *
 	 * @param worldName the unique name of the world to unload
 	 * @param bukkitWorld the [World] instance to unload
-	 * @param worldData the [WorldData] for this world
+	 * @param noSave if true, discards changes; if false, saves before unloading
 	 */
 	fun unloadWorldSync(
 		worldName: String,
 		bukkitWorld: World,
-		worldData: WorldData,
+		noSave: Boolean
 	) {
-		val plugin = SlimeLink.getInstance()
+		val plugin = SlimeLink.instance
 
 		var attempts = 0
 		val maxAttempts = 10
@@ -298,14 +345,7 @@ object SlimeWorldUtils {
 				cancel()
 				var success: Boolean
 				val time = measureTimeMillis {
-					if (worldData.isReadOnly()) {
-						success = unloadWorld(bukkitWorld, false)
-					} else {
-						ConfigManager.getWorldConfig().setWorld(worldName, worldData)
-						ConfigManager.saveWorldConfig()
-
-						success = unloadWorld(bukkitWorld, true)
-					}
+					success = unloadWorld(bukkitWorld, !noSave)
 				}
 
 				if (success) {
@@ -322,7 +362,7 @@ object SlimeWorldUtils {
 	 *
 	 * @param worldName the unique name of the world
 	 * @param bukkitWorld the [World] instance to unload
-	 * @param worldData the [WorldData] for this world
+	 * @param noSave if true, discards changes; if false, saves before unloading
 	 * @param shouldTeleport whether to teleport players before unloading
 	 * @param teleportTarget the [Location] to teleport players to (required if [shouldTeleport] is true)
 	 * @throws IllegalArgumentException if players exist and [shouldTeleport] is false, or if teleportTarget is null
@@ -330,13 +370,13 @@ object SlimeWorldUtils {
 	fun unloadWithOptionalTeleport(
 		worldName: String,
 		bukkitWorld: World,
-		worldData: WorldData,
+		noSave: Boolean,
 		shouldTeleport: Boolean,
 		teleportTarget: Location?
 	) {
 		val players = bukkitWorld.players
 		if (players.isEmpty()) {
-			unloadWorldSync(worldName, bukkitWorld, worldData)
+			unloadWorldSync(worldName, bukkitWorld, noSave)
 			return
 		}
 
@@ -348,7 +388,7 @@ object SlimeWorldUtils {
 			"Teleport target location is null, unable to unload world '$worldName'"
 		}
 
-		teleportPlayersAndUnloadWorld(worldName, bukkitWorld, worldData, target)
+		teleportPlayersAndUnloadWorld(worldName, bukkitWorld, noSave, target)
 	}
 
 	/**
@@ -356,13 +396,13 @@ object SlimeWorldUtils {
 	 *
 	 * @param worldName the unique name of the world
 	 * @param bukkitWorld the [World] instance containing players
-	 * @param worldData the [WorldData] for this world
+	 * @param noSave if true, discards changes; if false, saves before unloading
 	 * @param teleportTarget the [Location] to teleport players to
 	 */
 	fun teleportPlayersAndUnloadWorld(
 		worldName: String,
 		bukkitWorld: World,
-		worldData: WorldData,
+		noSave: Boolean,
 		teleportTarget: Location
 	) {
 		val playersInWorld = bukkitWorld.players
@@ -370,7 +410,7 @@ object SlimeWorldUtils {
 			CompletableFuture.allOf(*playersInWorld.map { it.teleportAsync(teleportTarget) }.toTypedArray())
 
 		completableFuture.thenRun {
-			unloadWorldSync(worldName, bukkitWorld, worldData)
+			unloadWorldSync(worldName, bukkitWorld, noSave)
 		}.exceptionally {
 			Skript.error("Failed to teleport players and unload world '$worldName': ${it.message}")
 			null

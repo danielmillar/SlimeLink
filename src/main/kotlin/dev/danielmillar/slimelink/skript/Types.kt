@@ -7,9 +7,10 @@ import ch.njol.skript.classes.Serializer
 import ch.njol.skript.lang.ParseContext
 import ch.njol.skript.registrations.Classes
 import ch.njol.yggdrasil.Fields
+import com.infernalsuite.asp.api.loaders.SlimeLoader
+import com.infernalsuite.asp.api.world.SlimeWorld
 import com.infernalsuite.asp.api.world.properties.SlimeProperties
 import com.infernalsuite.asp.api.world.properties.SlimePropertyMap
-import dev.danielmillar.slimelink.slime.SlimeLoaderTypeEnum
 import dev.danielmillar.slimelink.slime.SlimePropertiesEnum
 
 class Types {
@@ -17,11 +18,31 @@ class Types {
     companion object {
         init {
             Classes.registerClass(
-                EnumClassInfo(SlimeLoaderTypeEnum::class.java, "slimeloader", "slime loaders")
-                    .user("loaders")
-                    .name("Loader")
-                    .description("Represents a Slime loader.")
-                    .since("1.0.0")
+                ClassInfo(SlimeLoader::class.java, "slimeloader")
+                    .user("slime loaders?")
+                    .name("Slime Loader")
+                    .description("A Slime loader instance used to read/write worlds.")
+                    .since("2.0.0")
+                    .parser(object : Parser<SlimeLoader>() {
+                        override fun canParse(context: ParseContext?) = false
+                        override fun toString(loader: SlimeLoader?, flags: Int) = 
+                            loader?.let { "SlimeLoader[${it::class.simpleName}]" } ?: "null"
+                        override fun toVariableNameString(loader: SlimeLoader?) = toString(loader, 0)
+                    })
+            )
+
+            Classes.registerClass(
+                ClassInfo(SlimeWorld::class.java, "slimeworld")
+                    .user("slime world?")
+                    .name("Slime World")
+                    .description("A Slime World instance")
+                    .since("2.0.0")
+                    .parser(object : Parser<SlimeWorld>() {
+                        override fun canParse(context: ParseContext?) = false
+                        override fun toString(loader: SlimeWorld?, flags: Int) =
+                            loader?.let { "SlimeWorld[${it::class.simpleName}]" } ?: "null"
+                        override fun toVariableNameString(loader: SlimeWorld?) = toString(loader, 0)
+                    })
             )
 
             Classes.registerClass(
