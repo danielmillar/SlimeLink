@@ -1,7 +1,6 @@
 package dev.danielmillar.slimelink.skript.effects
 
 import ch.njol.skript.Skript
-import dev.danielmillar.slimelink.skript.registerEffect
 import ch.njol.skript.doc.Description
 import ch.njol.skript.doc.Examples
 import ch.njol.skript.doc.Name
@@ -34,7 +33,7 @@ class EffCloneWorld : Effect() {
 
     companion object {
         init {
-            registerEffect(
+            Skript.registerEffect(
                 EffCloneWorld::class.java,
                 "clone (slimeworld|slime world) %string% to %string% [readonly:as readonly] with %slimeloader% [using %-slimepropertymap%]"
             )

@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "dev.danielmillar"
-version = "2.0.0-beta.1"
+version = "2.0.0-rc.1"
 
 repositories {
     mavenLocal()
@@ -18,7 +18,7 @@ repositories {
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
 
-    compileOnly("com.github.SkriptLang:Skript:2.13.2")
+    compileOnly("com.github.SkriptLang:Skript:2.14.1")
 
     compileOnly("com.infernalsuite.asp:api:4.0.0-SNAPSHOT")
     implementation("com.infernalsuite.asp:loaders:4.0.0-SNAPSHOT")
@@ -30,11 +30,11 @@ dependencies {
     implementation("org.spongepowered:configurate-extra-kotlin:4.2.0-GeyserMC-SNAPSHOT")
 }
 
-val targetJavaVersion = 25
+val targetJavaVersion = 21
 kotlin {
     jvmToolchain(targetJavaVersion)
     compilerOptions {
-        javaParameters = true // Handles parameter names for both Kotlin and Java
+        javaParameters = true
         freeCompilerArgs.set(listOf("-Xannotation-default-target=param-property"))
     }
 }

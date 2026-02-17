@@ -1,12 +1,12 @@
 package dev.danielmillar.slimelink.skript.expressions
 
 import ch.njol.skript.Skript
-import dev.danielmillar.slimelink.skript.registerPropertyExpression
 import ch.njol.skript.doc.Description
 import ch.njol.skript.doc.Examples
 import ch.njol.skript.doc.Name
 import ch.njol.skript.doc.Since
 import ch.njol.skript.lang.Expression
+import ch.njol.skript.lang.ExpressionType
 import ch.njol.skript.lang.SkriptParser
 import ch.njol.skript.lang.util.SimpleExpression
 import ch.njol.util.Kleenean
@@ -31,9 +31,10 @@ class ExprGetProperty : SimpleExpression<Any>() {
 
     companion object {
         init {
-            registerPropertyExpression(
+            Skript.registerExpression(
                 ExprGetProperty::class.java,
                 Any::class.java,
+                ExpressionType.PROPERTY,
                 "%slimeproperty% of %slimepropertymap%"
             )
         }

@@ -1,6 +1,7 @@
 package dev.danielmillar.slimelink.skript.effects
 
 import ch.njol.skript.Skript
+import dev.danielmillar.slimelink.skript.registerEffect
 import ch.njol.skript.doc.Description
 import ch.njol.skript.doc.Examples
 import ch.njol.skript.doc.Name
@@ -29,7 +30,7 @@ class EffSaveWorld : Effect() {
 
     companion object {
         init {
-            Skript.registerEffect(
+            registerEffect(
                 EffSaveWorld::class.java,
                 "save slime world %string%"
             )

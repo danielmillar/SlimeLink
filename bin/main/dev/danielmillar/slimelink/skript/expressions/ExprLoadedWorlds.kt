@@ -1,12 +1,12 @@
 package dev.danielmillar.slimelink.skript.expressions
 
 import ch.njol.skript.Skript
-import dev.danielmillar.slimelink.skript.registerSimpleExpression
 import ch.njol.skript.doc.Description
 import ch.njol.skript.doc.Examples
 import ch.njol.skript.doc.Name
 import ch.njol.skript.doc.Since
 import ch.njol.skript.lang.Expression
+import ch.njol.skript.lang.ExpressionType
 import ch.njol.skript.lang.SkriptParser
 import ch.njol.skript.lang.util.SimpleExpression
 import ch.njol.util.Kleenean
@@ -30,9 +30,10 @@ class ExprLoadedWorlds : SimpleExpression<String>() {
 
     companion object {
         init {
-            registerSimpleExpression(
+            Skript.registerExpression(
                 ExprLoadedWorlds::class.java,
                 String::class.java,
+                ExpressionType.SIMPLE,
                 "all loaded (slimeworlds|slime worlds) with %slimeloader%"
             )
         }

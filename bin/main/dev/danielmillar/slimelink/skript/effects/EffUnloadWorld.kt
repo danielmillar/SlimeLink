@@ -1,7 +1,6 @@
 package dev.danielmillar.slimelink.skript.effects
 
 import ch.njol.skript.Skript
-import dev.danielmillar.slimelink.skript.registerEffect
 import ch.njol.skript.doc.Description
 import ch.njol.skript.doc.Examples
 import ch.njol.skript.doc.Name
@@ -32,7 +31,7 @@ class EffUnloadWorld : Effect() {
 
     companion object {
         init {
-            registerEffect(
+            Skript.registerEffect(
                 EffUnloadWorld::class.java,
                 "unload slime world %string% [nosave:without saving] [teleporting players to %-location%]"
             )

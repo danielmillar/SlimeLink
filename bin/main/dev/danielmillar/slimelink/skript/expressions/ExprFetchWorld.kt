@@ -1,12 +1,12 @@
 package dev.danielmillar.slimelink.skript.expressions
 
 import ch.njol.skript.Skript
-import dev.danielmillar.slimelink.skript.registerCombinedExpression
 import ch.njol.skript.doc.Description
 import ch.njol.skript.doc.Examples
 import ch.njol.skript.doc.Name
 import ch.njol.skript.doc.Since
 import ch.njol.skript.lang.Expression
+import ch.njol.skript.lang.ExpressionType
 import ch.njol.skript.lang.SkriptParser
 import ch.njol.skript.lang.util.SimpleExpression
 import ch.njol.util.Kleenean
@@ -31,9 +31,10 @@ class ExprFetchWorld : SimpleExpression<World>() {
 
     companion object {
         init {
-            registerCombinedExpression(
+            Skript.registerExpression(
                 ExprFetchWorld::class.java,
                 World::class.java,
+                ExpressionType.COMBINED,
                 "fetch (slimeworld|slime world) named %string%"
             )
         }

@@ -1,6 +1,7 @@
 package dev.danielmillar.slimelink.skript.effects
 
 import ch.njol.skript.Skript
+import dev.danielmillar.slimelink.skript.registerEffect
 import ch.njol.skript.doc.Description
 import ch.njol.skript.doc.Examples
 import ch.njol.skript.doc.Name
@@ -32,7 +33,7 @@ class EffLoadWorld : Effect() {
 
     companion object {
         init {
-            Skript.registerEffect(
+            registerEffect(
                 EffLoadWorld::class.java,
                 "load slime world %string% with %slimeloader% [readonly:as readonly] [using %-slimepropertymap%]"
             )

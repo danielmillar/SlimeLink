@@ -2,25 +2,21 @@ package dev.danielmillar.slimelink
 
 import Metrics
 import ch.njol.skript.Skript
+import ch.njol.skript.SkriptAddon
 import com.infernalsuite.asp.api.AdvancedSlimePaperAPI
 import dev.danielmillar.slimelink.config.ConfigManager
 import dev.danielmillar.slimelink.config.SourcesConfig
 import dev.danielmillar.slimelink.skript.Types
 import org.bukkit.plugin.java.JavaPlugin
-import org.skriptlang.skript.addon.SkriptAddon
-import org.skriptlang.skript.util.ClassLoader as SkriptClassLoader
 
 class SlimeLink : JavaPlugin() {
 
     companion object {
         lateinit var instance: SlimeLink
             private set
-
+        
         val asp: AdvancedSlimePaperAPI
             get() = instance._asp ?: error("ASP not initialized")
-
-        val skriptAddon: SkriptAddon
-            get() = instance.addon
     }
 
     private var _asp: AdvancedSlimePaperAPI? = null
@@ -57,18 +53,12 @@ class SlimeLink : JavaPlugin() {
 
         metrics = Metrics(this, 27582)
 
-        addon = Skript.instance().registerAddon(this::class.java, name)
-        addon.localizer().setSourceDirectories("lang", dataFolder.resolve("lang").absolutePath)
+        addon = Skript.registerAddon(this).setLanguageFileDirectory("lang")
         runCatching {
             Types()
-            SkriptClassLoader.builder()
-                .basePackage("dev.danielmillar.slimelink")
-                .initialize(true)
-                .deep(true)
-                .build()
-                .loadClasses(this::class.java)
+            addon.loadClasses("dev.danielmillar.slimelink")
         }.onFailure {
-            slF4JLogger.error("Failed to load classes required for Skript, Disabling plugin.", it)
+            slF4JLogger.error("Failed to load classes required for Skript, Disabling plugin.")
             server.pluginManager.disablePlugin(this)
         }
     }

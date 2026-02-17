@@ -1,7 +1,6 @@
 package dev.danielmillar.slimelink.skript.conditions
 
 import ch.njol.skript.Skript
-import dev.danielmillar.slimelink.skript.registerCondition
 import ch.njol.skript.doc.Description
 import ch.njol.skript.doc.Examples
 import ch.njol.skript.doc.Name
@@ -30,7 +29,7 @@ class CondWorldLoaded : Condition() {
 
     companion object {
         init {
-            registerCondition(
+            Skript.registerCondition(
                 CondWorldLoaded::class.java,
                 "(slimeworld|slime world) named %string% (is|1:is(n't| not)) loaded"
             )
