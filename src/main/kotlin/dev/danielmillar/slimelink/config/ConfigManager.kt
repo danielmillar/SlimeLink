@@ -120,7 +120,7 @@ class ConfigManager(
             entry.loader.save(node)
             logger.info("Saved config: {}", clazz.simpleName)
         }.onFailure { e ->
-            logger.warn("Failed to save config {}: {}", clazz.simpleName, e.cause?.stackTrace)
+            logger.warn("Failed to save config {}", clazz.simpleName, e)
         }.isSuccess
     }
 
@@ -152,7 +152,7 @@ class ConfigManager(
             entry.flow.value = config
             logger.info("Reloaded config: {}", clazz.simpleName)
         }.onFailure { e ->
-            logger.warn("Failed to reload config {}: {}", clazz.simpleName, e.cause?.stackTrace)
+            logger.warn("Failed to reload config {}", clazz.simpleName, e)
         }.getOrNull()
     }
 
@@ -209,7 +209,7 @@ class ConfigManager(
         }.getOrElse { e ->
             when (e) {
                 is ConfigurateException -> {
-                    logger.warn("Failed to load config {}, using defaults: {}", clazz.simpleName, e.cause?.stackTrace)
+                    logger.warn("Failed to load config {}, using defaults.", clazz.simpleName, e)
                     defaultProvider()
                 }
                 else -> throw e

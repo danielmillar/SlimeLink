@@ -5,6 +5,7 @@ import ch.njol.skript.Skript
 import com.infernalsuite.asp.api.AdvancedSlimePaperAPI
 import dev.danielmillar.slimelink.config.ConfigManager
 import dev.danielmillar.slimelink.config.SourcesConfig
+import dev.danielmillar.slimelink.slime.SlimeLoaderType
 import dev.danielmillar.slimelink.skript.Types
 import org.bukkit.plugin.java.JavaPlugin
 import org.skriptlang.skript.addon.SkriptAddon
@@ -74,6 +75,7 @@ class SlimeLink : JavaPlugin() {
     }
 
     override fun onDisable() {
+        SlimeLoaderType.clearCache()
         if (::metrics.isInitialized) {
             metrics.shutdown()
         }

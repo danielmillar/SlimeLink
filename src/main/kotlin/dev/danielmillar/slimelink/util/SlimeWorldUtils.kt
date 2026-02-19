@@ -1,6 +1,7 @@
 package dev.danielmillar.slimelink.util
 
 import ch.njol.skript.Skript
+import com.infernalsuite.asp.api.exceptions.*
 import com.infernalsuite.asp.api.loaders.SlimeLoader
 import com.infernalsuite.asp.api.world.SlimeWorld
 import com.infernalsuite.asp.api.world.properties.SlimePropertyMap
@@ -11,10 +12,18 @@ import org.bukkit.Location
 import org.bukkit.World
 import org.bukkit.scheduler.BukkitRunnable
 import java.io.File
+import java.io.IOException
+import java.util.*
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.ExecutionException
 import kotlin.system.measureTimeMillis
 
 object SlimeWorldUtils {
+
+	private val worldNamePattern = Regex("^[a-z0-9/._-]+$")
+	private val operationsInProgress: MutableSet<String> = ConcurrentHashMap.newKeySet()
 
 	/**
 	 * Validates a world name to ensure it matches the regex pattern.
@@ -22,8 +31,26 @@ object SlimeWorldUtils {
 	 * @throws IllegalArgumentException if the name is invalid
 	 */
 	fun validateWorldName(name: String) {
-		require(name.matches(Regex("^[a-z0-9/._-]+\$"))) {
+		require(name.matches(worldNamePattern)) {
 			"World name '$name' is invalid. Only lowercase letters, numbers, hyphens, underscores, periods, and slashes are allowed."
+		}
+	}
+
+	fun userFacingError(throwable: Throwable): String {
+        return when (val cause = unwrapException(throwable)) {
+			is WorldAlreadyExistsException -> cause.message ?: "A world with that name already exists."
+			is UnknownWorldException -> cause.message ?: "The requested world could not be found."
+			is CorruptedWorldException -> cause.message ?: "The world appears to be corrupted."
+			is NewerFormatException ->
+				"This world was serialized with a newer Slime Format (${cause.message ?: "unknown"})."
+
+			is InvalidWorldException -> cause.message ?: "The provided folder is not a valid vanilla world."
+			is WorldLoadedException -> cause.message ?: "A world with that name is currently loaded."
+			is WorldTooBigException -> cause.message ?: "The world is too large to be imported into Slime Format."
+			is IOException -> "I/O error: ${cause.message ?: "see server logs for details"}"
+			is IllegalArgumentException -> cause.message ?: "Invalid world operation."
+			is IllegalStateException -> cause.message ?: "Operation cannot be completed right now."
+			else -> cause.message ?: "Unexpected error occurred. Check server logs for details."
 		}
 	}
 
@@ -69,8 +96,8 @@ object SlimeWorldUtils {
 		properties: SlimePropertyMap,
 		loader: SlimeLoader,
 		readOnly: Boolean
-	): SlimeWorld? {
-		return try {
+	): SlimeWorld {
+		return withWorldLocks(listOf(worldName)) {
 			var slimeWorld: SlimeWorld? = null
 			val time = measureTimeMillis {
 				slimeWorld = SlimeLink.asp.createEmptyWorld(
@@ -81,10 +108,7 @@ object SlimeWorldUtils {
 				)
 			}
 			Skript.info("Successfully created world '$worldName' in ${time}ms")
-			slimeWorld
-		} catch (e: Exception) {
-			Skript.error("Failed to create world '$worldName': ${e.message}")
-			null
+			checkNotNull(slimeWorld) { "Failed to create world '$worldName'." }
 		}
 	}
 
@@ -101,25 +125,24 @@ object SlimeWorldUtils {
 		properties: SlimePropertyMap,
 		loader: SlimeLoader,
 		readOnly: Boolean
-	) {
-		val plugin = SlimeLink.instance
-		Bukkit.getScheduler().runTaskAsynchronously(plugin, Runnable {
-			try {
-				val time = measureTimeMillis {
-					val slimeWorld = SlimeLink.asp.createEmptyWorld(
-						worldName,
-						readOnly,
-						properties,
-						loader
-					)
-					SlimeLink.asp.saveWorld(slimeWorld)
-				}
-
-				Skript.info("Successfully created world '$worldName' in ${time}ms")
-			} catch (e: Exception) {
-				Skript.error("Failed to create world '$worldName': ${e.message}")
+	): CompletableFuture<Unit> {
+		return runAsyncLocked("create world '$worldName'", listOf(worldName)) {
+			if (loader.worldExists(worldName)) {
+				throw WorldAlreadyExistsException(worldName)
 			}
-		})
+
+			val time = measureTimeMillis {
+				val slimeWorld = SlimeLink.asp.createEmptyWorld(
+					worldName,
+					readOnly,
+					properties,
+					loader
+				)
+				SlimeLink.asp.saveWorld(slimeWorld)
+			}
+
+			Skript.info("Successfully created world '$worldName' in ${time}ms")
+		}
 	}
 
 	/**
@@ -135,22 +158,16 @@ object SlimeWorldUtils {
 		loader: SlimeLoader,
 		readOnly: Boolean,
 		properties: SlimePropertyMap
-	) {
-		val plugin = SlimeLink.instance
-		Bukkit.getScheduler().runTaskAsynchronously(plugin, Runnable {
-			try {
-				val time = measureTimeMillis {
-					val slimeWorld = SlimeLink.asp.readWorld(loader, worldName, readOnly, properties)
-
-					Bukkit.getScheduler().runTask(plugin, Runnable {
-						SlimeLink.asp.loadWorld(slimeWorld, true)
-					})
+	): CompletableFuture<Unit> {
+		return runAsyncLocked("load world '$worldName'", listOf(worldName)) {
+			val time = measureTimeMillis {
+				val slimeWorld = SlimeLink.asp.readWorld(loader, worldName, readOnly, properties)
+				runSyncAndWait {
+					SlimeLink.asp.loadWorld(slimeWorld, true)
 				}
-				Skript.info("Successfully loaded world '$worldName' in ${time}ms")
-			} catch (e: Exception) {
-				Skript.error("Failed to load world '$worldName': ${e.message}")
 			}
-		})
+			Skript.info("Successfully loaded world '$worldName' in ${time}ms")
+		}
 	}
 
 	/**
@@ -161,13 +178,13 @@ object SlimeWorldUtils {
 	fun loadWorldSync(
 		world: SlimeWorld,
 	) {
-		try {
+		withWorldLocks(listOf(world.name)) {
 			val time = measureTimeMillis {
-				SlimeLink.asp.loadWorld(world, true)
+				runSyncAndWait {
+					SlimeLink.asp.loadWorld(world, true)
+				}
 			}
 			Skript.info("Successfully loaded world '${world.name}' in ${time}ms")
-		} catch (e: Exception) {
-			Skript.error("Failed to load world '${world.name}': ${e.message}")
 		}
 	}
 
@@ -182,25 +199,18 @@ object SlimeWorldUtils {
 		vanillaWorldPath: File,
 		slimeWorldName: String,
 		loader: SlimeLoader
-	) {
-		val plugin = SlimeLink.instance
-
-		Bukkit.getScheduler().runTaskAsynchronously(plugin, Runnable {
-			try {
-				val time = measureTimeMillis {
-					val slimeWorld = SlimeLink.asp.readVanillaWorld(vanillaWorldPath, slimeWorldName, loader)
-					SlimeLink.asp.saveWorld(slimeWorld)
-
-					Bukkit.getScheduler().runTask(plugin, Runnable {
-						SlimeLink.asp.loadWorld(slimeWorld, true)
-					})
+	): CompletableFuture<Unit> {
+		return runAsyncLocked("import world '$slimeWorldName'", listOf(slimeWorldName)) {
+			val time = measureTimeMillis {
+				val slimeWorld = SlimeLink.asp.readVanillaWorld(vanillaWorldPath, slimeWorldName, loader)
+				SlimeLink.asp.saveWorld(slimeWorld)
+				runSyncAndWait {
+					SlimeLink.asp.loadWorld(slimeWorld, true)
 				}
-
-				Skript.info("Successfully imported world '$slimeWorldName' from '$vanillaWorldPath' in ${time}ms")
-			} catch (e: Exception) {
-				Skript.error("Failed to import world '$slimeWorldName': ${e.message}")
 			}
-		})
+
+			Skript.info("Successfully imported world '$slimeWorldName' from '$vanillaWorldPath' in ${time}ms")
+		}
 	}
 
 	/**
@@ -220,8 +230,8 @@ object SlimeWorldUtils {
 		readOnly: Boolean,
 		properties: SlimePropertyMap,
 		storeWithLoader: Boolean = true
-	): SlimeWorld? {
-		return try {
+	): SlimeWorld {
+		return withWorldLocks(listOf(sourceWorldName, targetWorldName)) {
 			var clonedWorld: SlimeWorld? = null
 			val time = measureTimeMillis {
 				val sourceWorld = if (loader != null) {
@@ -237,10 +247,7 @@ object SlimeWorldUtils {
 				}
 			}
 			Skript.info("Successfully cloned world '$sourceWorldName' to '$targetWorldName' in ${time}ms")
-			clonedWorld
-		} catch (e: Exception) {
-			Skript.error("Failed to clone world '$sourceWorldName' to '$targetWorldName': ${e.message}")
-			null
+			checkNotNull(clonedWorld) { "Failed to clone world '$sourceWorldName' to '$targetWorldName'." }
 		}
 	}
 
@@ -259,20 +266,14 @@ object SlimeWorldUtils {
 		loader: SlimeLoader,
 		readOnly: Boolean,
 		properties: SlimePropertyMap
-	) {
-		val plugin = SlimeLink.instance
-		Bukkit.getScheduler().runTaskAsynchronously(plugin, Runnable {
-			try {
-				val time = measureTimeMillis {
-					val sourceWorld = SlimeLink.asp.readWorld(loader, sourceWorldName, readOnly, properties)
-					val clonedWorld = sourceWorld.clone(targetWorldName, loader)
-					SlimeLink.asp.saveWorld(clonedWorld)
-				}
-				Skript.info("Successfully cloned world '$sourceWorldName' to '$targetWorldName' in ${time}ms")
-			} catch (e: Exception) {
-				Skript.error("Failed to clone world '$sourceWorldName' to '$targetWorldName': ${e.message}")
+	): CompletableFuture<Unit> {
+		return runAsyncLocked("clone world '$sourceWorldName' to '$targetWorldName'", listOf(sourceWorldName, targetWorldName)) {
+			val time = measureTimeMillis {
+				val sourceWorld = SlimeLink.asp.readWorld(loader, sourceWorldName, readOnly, properties)
+				sourceWorld.clone(targetWorldName, loader)
 			}
-		})
+			Skript.info("Successfully cloned world '$sourceWorldName' to '$targetWorldName' in ${time}ms")
+		}
 	}
 
 	/**
@@ -284,18 +285,13 @@ object SlimeWorldUtils {
 	fun deleteWorldAsync(
 		worldName: String,
 		loader: SlimeLoader
-	) {
-		val plugin = SlimeLink.instance
-		Bukkit.getScheduler().runTaskAsynchronously(plugin, Runnable {
-			try {
-				val time = measureTimeMillis {
-					loader.deleteWorld(worldName)
-				}
-				Skript.info("Successfully deleted world '$worldName' in ${time}ms")
-			} catch (e: Exception) {
-				Skript.error("Failed to delete world '$worldName': ${e.message}")
+	): CompletableFuture<Unit> {
+		return runAsyncLocked("delete world '$worldName'", listOf(worldName)) {
+			val time = measureTimeMillis {
+				loader.deleteWorld(worldName)
 			}
-		})
+			Skript.info("Successfully deleted world '$worldName' in ${time}ms")
+		}
 	}
 
 	/**
@@ -305,15 +301,15 @@ object SlimeWorldUtils {
 	 */
 	fun saveWorldSync(
 		worldName: String,
-	) {
-		val plugin = SlimeLink.instance
-		Bukkit.getScheduler().runTaskAsynchronously(plugin, Runnable {
+	): CompletableFuture<Unit> {
+		return runAsyncLocked("save world '$worldName'", listOf(worldName)) {
+			val loadedWorld = SlimeLink.asp.getLoadedWorld(worldName)
+				?: throw IllegalStateException("World '$worldName' is no longer loaded.")
 			val time = measureTimeMillis {
-                val loadedWorld = SlimeLink.asp.getLoadedWorld(worldName) ?: return@Runnable
-                SlimeLink.asp.saveWorld(loadedWorld)
+				SlimeLink.asp.saveWorld(loadedWorld)
 			}
 			Skript.info("Successfully saved world '$worldName' in ${time}ms")
-		})
+		}
 	}
 
 	/**
@@ -328,33 +324,64 @@ object SlimeWorldUtils {
 		bukkitWorld: World,
 		noSave: Boolean
 	) {
+		val locks = acquireWorldLocks(listOf(worldName))
+		unloadWorldSync(worldName, bukkitWorld, noSave, locks)
+	}
+
+	private fun unloadWorldSync(
+		worldName: String,
+		bukkitWorld: World,
+		noSave: Boolean,
+		locks: List<String>
+	) {
 		val plugin = SlimeLink.instance
 
 		var attempts = 0
 		val maxAttempts = 10
-		object : BukkitRunnable() {
+		var released = false
+		fun releaseLocksOnce() {
+			if (released) {
+				return
+			}
+			released = true
+			releaseWorldLocks(locks)
+		}
+
+		val unloadTask = object : BukkitRunnable() {
 			override fun run() {
 				if (Bukkit.isTickingWorlds()) {
 					if (++attempts >= maxAttempts) {
 						Skript.error("Failed to unload world '$worldName' after waiting for ticking to stop.")
+						releaseLocksOnce()
 						cancel()
 					}
 					return
 				}
 
 				cancel()
-				var success: Boolean
-				val time = measureTimeMillis {
-					success = unloadWorld(bukkitWorld, !noSave)
-				}
+				try {
+					var success: Boolean
+					val time = measureTimeMillis {
+						success = unloadWorld(bukkitWorld, !noSave)
+					}
 
-				if (success) {
-					Skript.info("Successfully unloaded world '$worldName' in ${time}ms")
-				} else {
-					Skript.error("Failed to unload world '$worldName' in ${time}ms, it may still be loaded")
+					if (success) {
+						Skript.info("Successfully unloaded world '$worldName' in ${time}ms")
+					} else {
+						Skript.error("Failed to unload world '$worldName' in ${time}ms, it may still be loaded")
+					}
+				} finally {
+					releaseLocksOnce()
 				}
 			}
-		}.runTaskTimer(plugin, 0L, 5L)
+		}
+
+		try {
+			unloadTask.runTaskTimer(plugin, 0L, 5L)
+		} catch (throwable: Throwable) {
+			releaseLocksOnce()
+			throw throwable
+		}
 	}
 
 	/**
@@ -374,21 +401,27 @@ object SlimeWorldUtils {
 		shouldTeleport: Boolean,
 		teleportTarget: Location?
 	) {
+		val locks = acquireWorldLocks(listOf(worldName))
 		val players = bukkitWorld.players
 		if (players.isEmpty()) {
-			unloadWorldSync(worldName, bukkitWorld, noSave)
+			unloadWorldSync(worldName, bukkitWorld, noSave, locks)
 			return
 		}
 
-		require(shouldTeleport) {
-			"Players in world '$worldName'; cannot unload without removing them"
-		}
+		try {
+			require(shouldTeleport) {
+				"Players in world '$worldName'; cannot unload without removing them"
+			}
 
-		val target = requireNotNull(teleportTarget) {
-			"Teleport target location is null, unable to unload world '$worldName'"
-		}
+			val target = requireNotNull(teleportTarget) {
+				"Teleport target location is null, unable to unload world '$worldName'"
+			}
 
-		teleportPlayersAndUnloadWorld(worldName, bukkitWorld, noSave, target)
+			teleportPlayersAndUnloadWorld(worldName, bukkitWorld, noSave, target, locks)
+		} catch (throwable: Throwable) {
+			releaseWorldLocks(locks)
+			throw throwable
+		}
 	}
 
 	/**
@@ -403,17 +436,161 @@ object SlimeWorldUtils {
 		worldName: String,
 		bukkitWorld: World,
 		noSave: Boolean,
-		teleportTarget: Location
+		teleportTarget: Location,
+		locks: List<String>? = null
 	) {
 		val playersInWorld = bukkitWorld.players
 		val completableFuture =
 			CompletableFuture.allOf(*playersInWorld.map { it.teleportAsync(teleportTarget) }.toTypedArray())
 
 		completableFuture.thenRun {
-			unloadWorldSync(worldName, bukkitWorld, noSave)
+			if (locks == null) {
+				unloadWorldSync(worldName, bukkitWorld, noSave)
+			} else {
+				unloadWorldSync(worldName, bukkitWorld, noSave, locks)
+			}
 		}.exceptionally {
+			if (locks != null) {
+				releaseWorldLocks(locks)
+			}
 			Skript.error("Failed to teleport players and unload world '$worldName': ${it.message}")
 			null
+		}
+	}
+
+	private fun runAsyncLocked(
+		operation: String,
+		worldNames: Collection<String>,
+		task: () -> Unit
+	): CompletableFuture<Unit> {
+		val locks = try {
+			acquireWorldLocks(worldNames)
+		} catch (throwable: Throwable) {
+			return CompletableFuture.failedFuture(throwable)
+		}
+
+		val future = CompletableFuture<Unit>()
+		val plugin = SlimeLink.instance
+
+		try {
+			Bukkit.getScheduler().runTaskAsynchronously(plugin, Runnable {
+				try {
+					task()
+					future.complete(Unit)
+				} catch (throwable: Throwable) {
+					logOperationFailure(operation, throwable)
+					future.completeExceptionally(throwable)
+				} finally {
+					releaseWorldLocks(locks)
+				}
+			})
+		} catch (throwable: Throwable) {
+			releaseWorldLocks(locks)
+			logOperationFailure(operation, throwable)
+			future.completeExceptionally(throwable)
+		}
+
+		return future
+	}
+
+	private inline fun <T> withWorldLocks(
+		worldNames: Collection<String>,
+		block: () -> T
+	): T {
+		val locks = acquireWorldLocks(worldNames)
+		return try {
+			block()
+		} finally {
+			releaseWorldLocks(locks)
+		}
+	}
+
+	private fun acquireWorldLocks(worldNames: Collection<String>): List<String> {
+		val normalized = worldNames
+            .asSequence()
+            .map(String::trim)
+            .filter(String::isNotEmpty)
+            .map { it.lowercase(Locale.ROOT) }
+            .distinct()
+            .sorted()
+            .toList()
+
+		require(normalized.isNotEmpty()) { "No world names were provided for this operation." }
+
+		val acquired = mutableListOf<String>()
+		for (name in normalized) {
+			if (!operationsInProgress.add(name)) {
+				acquired.forEach(operationsInProgress::remove)
+				throw IllegalStateException("Another operation is already running for world '$name'.")
+			}
+			acquired += name
+		}
+		return acquired
+	}
+
+	private fun releaseWorldLocks(locks: Collection<String>) {
+		locks.forEach(operationsInProgress::remove)
+	}
+
+	private fun <T> runSyncAndWait(task: () -> T): T {
+		if (Bukkit.isPrimaryThread()) {
+			return task()
+		}
+
+		val latch = CountDownLatch(1)
+		var result: T? = null
+		var throwable: Throwable? = null
+
+		Bukkit.getScheduler().runTask(SlimeLink.instance, Runnable {
+			try {
+				result = task()
+			} catch (caught: Throwable) {
+				throwable = caught
+			} finally {
+				latch.countDown()
+			}
+		})
+
+		try {
+			latch.await()
+		} catch (interrupted: InterruptedException) {
+			Thread.currentThread().interrupt()
+			throw IllegalStateException("Interrupted while waiting for a main-thread world operation.", interrupted)
+		}
+
+		throwable?.let { throw it }
+		@Suppress("UNCHECKED_CAST")
+		return result as T
+	}
+
+	private fun logOperationFailure(operation: String, throwable: Throwable) {
+		val cause = unwrapException(throwable)
+		val logger = SlimeLink.instance.slF4JLogger
+
+		when (cause) {
+			is WorldAlreadyExistsException,
+			is UnknownWorldException,
+			is CorruptedWorldException,
+			is NewerFormatException,
+			is InvalidWorldException,
+			is WorldLoadedException,
+			is WorldTooBigException,
+			is IllegalArgumentException,
+			is IllegalStateException -> logger.warn("Failed to {}: {}", operation, cause.message)
+
+			else -> logger.error("Failed to {}.", operation, cause)
+		}
+	}
+
+	private tailrec fun unwrapException(throwable: Throwable): Throwable {
+		return when (throwable) {
+			is ExecutionException,
+			is java.util.concurrent.CompletionException -> {
+				val cause = throwable.cause
+				if (cause == null) throwable else unwrapException(cause)
+			}
+
+			else -> throwable
 		}
 	}
 }
