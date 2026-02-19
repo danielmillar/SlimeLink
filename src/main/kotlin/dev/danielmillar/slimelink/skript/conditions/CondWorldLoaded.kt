@@ -1,6 +1,5 @@
 package dev.danielmillar.slimelink.skript.conditions
 
-import ch.njol.skript.Skript
 import dev.danielmillar.slimelink.skript.registerCondition
 import ch.njol.skript.doc.Description
 import ch.njol.skript.doc.Examples

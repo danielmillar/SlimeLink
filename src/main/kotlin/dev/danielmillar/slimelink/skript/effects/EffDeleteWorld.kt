@@ -1,6 +1,5 @@
 package dev.danielmillar.slimelink.skript.effects
 
-import ch.njol.skript.Skript
 import dev.danielmillar.slimelink.skript.registerEffect
 import ch.njol.skript.doc.Description
 import ch.njol.skript.doc.Examples
@@ -13,6 +12,7 @@ import ch.njol.util.Kleenean
 import com.infernalsuite.asp.api.loaders.SlimeLoader
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.deleteWorldAsync
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.requireWorldNotLoaded
+import dev.danielmillar.slimelink.util.SlimeWorldUtils.userFacingError
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.validateWorldName
 import org.bukkit.event.Event
 
@@ -63,9 +63,12 @@ class EffDeleteWorld : Effect() {
         try {
             validateWorldName(name)
             requireWorldNotLoaded(name, "World is currently loaded, must be unloaded before deleting!")
-            deleteWorldAsync(name, slimeLoader)
-        } catch (e: IllegalArgumentException) {
-            Skript.error(e.message)
+            deleteWorldAsync(name, slimeLoader).exceptionally { throwable ->
+                this.error(userFacingError(throwable))
+                null
+            }
+        } catch (exception: IllegalArgumentException) {
+            this.error(exception.message ?: "Invalid world operation.")
         }
     }
 }

@@ -1,6 +1,5 @@
 package dev.danielmillar.slimelink.skript.expressions
 
-import ch.njol.skript.Skript
 import dev.danielmillar.slimelink.skript.registerSimpleExpression
 import ch.njol.skript.doc.Description
 import ch.njol.skript.doc.Examples
@@ -63,10 +62,10 @@ class ExprLoadedWorlds : SimpleExpression<String>() {
 
         return try {
             val loaderWorlds = slimeLoader.listWorlds()
-            val loadedWorldNames = Bukkit.getWorlds().map { it.name }
+            val loadedWorldNames = Bukkit.getWorlds().asSequence().map { it.name }.toHashSet()
             loaderWorlds.filter { it in loadedWorldNames }.toTypedArray()
-        } catch (e: Exception) {
-            Skript.error("Failed to list worlds: ${e.message}")
+        } catch (exception: Exception) {
+            this.error("Failed to list worlds: ${exception.message ?: "unknown error"}")
             emptyArray()
         }
     }

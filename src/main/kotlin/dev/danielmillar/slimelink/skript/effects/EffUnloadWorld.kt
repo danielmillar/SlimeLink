@@ -1,6 +1,5 @@
 package dev.danielmillar.slimelink.skript.effects
 
-import ch.njol.skript.Skript
 import dev.danielmillar.slimelink.skript.registerEffect
 import ch.njol.skript.doc.Description
 import ch.njol.skript.doc.Examples
@@ -12,6 +11,7 @@ import ch.njol.skript.lang.SkriptParser
 import ch.njol.util.Kleenean
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.requireWorldLoaded
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.unloadWithOptionalTeleport
+import dev.danielmillar.slimelink.util.SlimeWorldUtils.userFacingError
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.validateWorldName
 import org.bukkit.Location
 import org.bukkit.event.Event
@@ -73,8 +73,8 @@ class EffUnloadWorld : Effect() {
                 teleportTarget != null,
                 teleportTarget
             )
-        } catch (e: IllegalArgumentException) {
-            Skript.error(e.message)
+        } catch (exception: Exception) {
+            this.error(userFacingError(exception))
         }
     }
 }

@@ -1,6 +1,5 @@
 package dev.danielmillar.slimelink.skript.effects
 
-import ch.njol.skript.Skript
 import dev.danielmillar.slimelink.skript.registerEffect
 import ch.njol.skript.doc.Description
 import ch.njol.skript.doc.Examples
@@ -13,6 +12,7 @@ import ch.njol.util.Kleenean
 import com.infernalsuite.asp.api.world.SlimeWorld
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.loadWorldSync
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.requireWorldNotLoaded
+import dev.danielmillar.slimelink.util.SlimeWorldUtils.userFacingError
 import org.bukkit.event.Event
 
 @Name("SlimeWorld - Load World")
@@ -59,8 +59,8 @@ class EffLoadWorldObject : Effect() {
         try {
             requireWorldNotLoaded(world.name)
             loadWorldSync(world)
-        } catch (e: IllegalArgumentException) {
-            Skript.error(e.message)
+        } catch (exception: Exception) {
+            this.error(userFacingError(exception))
         }
     }
 }

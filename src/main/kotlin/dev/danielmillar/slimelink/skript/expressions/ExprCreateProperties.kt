@@ -1,6 +1,5 @@
 package dev.danielmillar.slimelink.skript.expressions
 
-import ch.njol.skript.Skript
 import dev.danielmillar.slimelink.skript.registerSimpleExpression
 import ch.njol.skript.doc.Description
 import ch.njol.skript.doc.Examples

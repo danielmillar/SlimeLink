@@ -1,6 +1,5 @@
 package dev.danielmillar.slimelink.skript.expressions
 
-import ch.njol.skript.Skript
 import dev.danielmillar.slimelink.skript.registerSimpleExpression
 import ch.njol.skript.doc.Description
 import ch.njol.skript.doc.Examples
@@ -33,7 +32,9 @@ class ExprCreateLoader : SimpleExpression<SlimeLoader>() {
             registerSimpleExpression(
                 ExprCreateLoader::class.java,
                 SlimeLoader::class.java,
-                "[new] slime loader from (file|mysql|mongodb)"
+                "[new] slime loader from file",
+                "[new] slime loader from mysql",
+                "[new] slime loader from mongodb"
             )
         }
     }
@@ -49,7 +50,7 @@ class ExprCreateLoader : SimpleExpression<SlimeLoader>() {
         isDelayed: Kleenean,
         parser: SkriptParser.ParseResult
     ): Boolean {
-        loaderType = when (parser.mark) {
+        loaderType = when (matchedPattern) {
             0 -> SlimeLoaderType.FILE
             1 -> SlimeLoaderType.MYSQL
             2 -> SlimeLoaderType.MONGODB
@@ -65,8 +66,8 @@ class ExprCreateLoader : SimpleExpression<SlimeLoader>() {
     override fun get(event: Event): Array<SlimeLoader> {
         return try {
             arrayOf(loaderType.createLoader())
-        } catch (e: IllegalStateException) {
-            Skript.error(e.message)
+        } catch (exception: IllegalStateException) {
+            this.error(exception.message ?: "Failed to initialize ${loaderType.id} datasource.")
             emptyArray()
         }
     }

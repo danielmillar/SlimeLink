@@ -1,6 +1,5 @@
 package dev.danielmillar.slimelink.skript.effects
 
-import ch.njol.skript.Skript
 import dev.danielmillar.slimelink.skript.registerEffect
 import ch.njol.skript.doc.Description
 import ch.njol.skript.doc.Examples
@@ -14,6 +13,7 @@ import com.infernalsuite.asp.api.loaders.SlimeLoader
 import com.infernalsuite.asp.api.world.properties.SlimePropertyMap
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.createWorldAsync
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.requireWorldNotLoaded
+import dev.danielmillar.slimelink.util.SlimeWorldUtils.userFacingError
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.validateWorldName
 import org.bukkit.event.Event
 
@@ -70,9 +70,12 @@ class EffCreateWorld : Effect() {
         try {
             validateWorldName(name)
             requireWorldNotLoaded(name, "A loaded world with that name already exists!")
-            createWorldAsync(name, props, slimeLoader, readOnly)
-        } catch (e: IllegalArgumentException) {
-            Skript.error(e.message)
+            createWorldAsync(name, props, slimeLoader, readOnly).exceptionally { throwable ->
+                this.error(userFacingError(throwable))
+                null
+            }
+        } catch (exception: IllegalArgumentException) {
+            this.error(exception.message ?: "Invalid world operation.")
         }
     }
 }

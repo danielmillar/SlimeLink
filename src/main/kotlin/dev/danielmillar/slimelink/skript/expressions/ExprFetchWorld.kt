@@ -1,6 +1,5 @@
 package dev.danielmillar.slimelink.skript.expressions
 
-import ch.njol.skript.Skript
 import dev.danielmillar.slimelink.skript.registerCombinedExpression
 import ch.njol.skript.doc.Description
 import ch.njol.skript.doc.Examples
@@ -66,8 +65,8 @@ class ExprFetchWorld : SimpleExpression<World>() {
             validateWorldName(name)
             val world = Bukkit.getWorld(name) ?: return emptyArray()
             arrayOf(world)
-        } catch (e: IllegalArgumentException) {
-            Skript.error(e.message)
+        } catch (exception: IllegalArgumentException) {
+            this.error(exception.message ?: "Invalid world name '$name'.")
             emptyArray()
         }
     }

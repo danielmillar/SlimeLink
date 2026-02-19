@@ -1,6 +1,5 @@
 package dev.danielmillar.slimelink.skript.expressions
 
-import ch.njol.skript.Skript
 import dev.danielmillar.slimelink.skript.registerSimpleExpression
 import ch.njol.skript.doc.Description
 import ch.njol.skript.doc.Examples
@@ -15,6 +14,7 @@ import com.infernalsuite.asp.api.world.SlimeWorld
 import com.infernalsuite.asp.api.world.properties.SlimePropertyMap
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.cloneWorldSync
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.requireWorldNotLoaded
+import dev.danielmillar.slimelink.util.SlimeWorldUtils.userFacingError
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.validateWorldName
 import org.bukkit.event.Event
 
@@ -73,7 +73,7 @@ class ExprCloneWorld : SimpleExpression<SlimeWorld>() {
 
     override fun getReturnType(): Class<SlimeWorld> = SlimeWorld::class.java
 
-    override fun get(event: Event): Array<SlimeWorld?> {
+    override fun get(event: Event): Array<SlimeWorld> {
         val sourceName = sourceWorldName.getSingle(event) ?: return emptyArray()
         val targetName = targetWorldName.getSingle(event) ?: return emptyArray()
         val slimeLoader = loader?.getSingle(event)
@@ -90,8 +90,8 @@ class ExprCloneWorld : SimpleExpression<SlimeWorld>() {
             
             val world = cloneWorldSync(sourceName, targetName, slimeLoader, readOnly, props, !noStore)
             arrayOf(world)
-        } catch (e: IllegalArgumentException) {
-            Skript.error(e.message)
+        } catch (exception: Exception) {
+            this.error(userFacingError(exception))
             emptyArray()
         }
     }

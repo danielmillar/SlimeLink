@@ -1,6 +1,5 @@
 package dev.danielmillar.slimelink.skript.effects
 
-import ch.njol.skript.Skript
 import dev.danielmillar.slimelink.skript.registerEffect
 import ch.njol.skript.doc.Description
 import ch.njol.skript.doc.Examples
@@ -12,6 +11,7 @@ import ch.njol.skript.lang.SkriptParser
 import ch.njol.util.Kleenean
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.requireWorldLoaded
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.saveWorldSync
+import dev.danielmillar.slimelink.util.SlimeWorldUtils.userFacingError
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.validateWorldName
 import org.bukkit.event.Event
 
@@ -59,9 +59,12 @@ class EffSaveWorld : Effect() {
         try {
             validateWorldName(name)
             requireWorldLoaded(name)
-            saveWorldSync(name)
-        } catch (e: IllegalArgumentException) {
-            Skript.error(e.message)
+            saveWorldSync(name).exceptionally { throwable ->
+                this.error(userFacingError(throwable))
+                null
+            }
+        } catch (exception: IllegalArgumentException) {
+            this.error(exception.message ?: "Invalid world operation.")
         }
     }
 }

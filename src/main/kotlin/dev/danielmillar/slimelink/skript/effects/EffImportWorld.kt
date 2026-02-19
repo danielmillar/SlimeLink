@@ -1,6 +1,5 @@
 package dev.danielmillar.slimelink.skript.effects
 
-import ch.njol.skript.Skript
 import dev.danielmillar.slimelink.skript.registerEffect
 import ch.njol.skript.doc.Description
 import ch.njol.skript.doc.Examples
@@ -13,6 +12,7 @@ import ch.njol.util.Kleenean
 import com.infernalsuite.asp.api.loaders.SlimeLoader
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.importSlimeWorldFromVanillaWorld
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.requireWorldNotLoaded
+import dev.danielmillar.slimelink.util.SlimeWorldUtils.userFacingError
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.validateWorldName
 import org.bukkit.Bukkit
 import org.bukkit.event.Event
@@ -74,9 +74,12 @@ class EffImportWorld : Effect() {
                 "Vanilla world '$vanillaName' not found at ${worldFolder.absolutePath}"
             }
             
-            importSlimeWorldFromVanillaWorld(worldFolder, slimeName, slimeLoader)
-        } catch (e: IllegalArgumentException) {
-            Skript.error(e.message)
+            importSlimeWorldFromVanillaWorld(worldFolder, slimeName, slimeLoader).exceptionally { throwable ->
+                this.error(userFacingError(throwable))
+                null
+            }
+        } catch (exception: IllegalArgumentException) {
+            this.error(exception.message ?: "Invalid world operation.")
         }
     }
 }

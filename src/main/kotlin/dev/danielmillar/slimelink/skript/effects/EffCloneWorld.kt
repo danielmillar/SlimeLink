@@ -1,6 +1,5 @@
 package dev.danielmillar.slimelink.skript.effects
 
-import ch.njol.skript.Skript
 import dev.danielmillar.slimelink.skript.registerEffect
 import ch.njol.skript.doc.Description
 import ch.njol.skript.doc.Examples
@@ -14,6 +13,7 @@ import com.infernalsuite.asp.api.loaders.SlimeLoader
 import com.infernalsuite.asp.api.world.properties.SlimePropertyMap
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.cloneWorldAsync
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.requireWorldNotLoaded
+import dev.danielmillar.slimelink.util.SlimeWorldUtils.userFacingError
 import dev.danielmillar.slimelink.util.SlimeWorldUtils.validateWorldName
 import org.bukkit.event.Event
 
@@ -80,9 +80,12 @@ class EffCloneWorld : Effect() {
                 "Source and target world names must be different"
             }
             
-            cloneWorldAsync(sourceName, targetName, slimeLoader, readOnly, props)
-        } catch (e: IllegalArgumentException) {
-            Skript.error(e.message)
+            cloneWorldAsync(sourceName, targetName, slimeLoader, readOnly, props).exceptionally { throwable ->
+                this.error(userFacingError(throwable))
+                null
+            }
+        } catch (exception: IllegalArgumentException) {
+            this.error(exception.message ?: "Invalid world operation.")
         }
     }
 }
