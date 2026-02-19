@@ -38,7 +38,7 @@ import java.util.concurrent.ConcurrentHashMap
         "on slime world unload:",
         "    broadcast \"Unloaded Slime world: %event-world%\"",
         "",
-        "on slime world load of world \"arena\":",
+        "on slime world load of \"arena\":",
         "    set {last_slime_world} to event-slimeworld"
     ]
 )
@@ -53,8 +53,8 @@ class EvtSlimeWorld : SkriptEvent() {
                 EvtSlimeWorld::class.java,
                 "Slime World Load/Unload",
                 arrayOf(LoadSlimeWorldEvent::class.java, SlimeWorldUnloadEvent::class.java),
-                "slime world load[ing] [of %-worlds%]",
-                "slime world unload[ing] [of %-worlds%]"
+                "slime world load[ing] [of %-strings%]",
+                "slime world unload[ing] [of %-strings%]"
             ) { EvtSlimeWorld() }
 
             EventValues.registerEventValue(
@@ -107,7 +107,7 @@ class EvtSlimeWorld : SkriptEvent() {
         }
     }
 
-    private var worlds: Literal<World>? = null
+    private var worldNames: Literal<String>? = null
     private var unload = false
 
     @Suppress("UNCHECKED_CAST")
@@ -116,9 +116,9 @@ class EvtSlimeWorld : SkriptEvent() {
         matchedPattern: Int,
         parseResult: SkriptParser.ParseResult
     ): Boolean {
-        worlds = args[0] as? Literal<World>
-        if (worlds is LiteralList<*> && worlds!!.and) {
-            (worlds as LiteralList<World>).invertAnd()
+        worldNames = args[0] as? Literal<String>
+        if (worldNames is LiteralList<*> && worldNames!!.and) {
+            (worldNames as LiteralList<String>).invertAnd()
         }
         unload = matchedPattern == 1
         return true
@@ -141,12 +141,14 @@ class EvtSlimeWorld : SkriptEvent() {
             else -> return false
         }
 
-        val specifiedWorlds = worlds ?: return true
-        return specifiedWorlds.check(event) { world -> world == eventWorld }
+        val specifiedWorldNames = worldNames ?: return true
+        return specifiedWorldNames.check(event) { worldName ->
+            worldName.equals(eventWorld.name, ignoreCase = true)
+        }
     }
 
     override fun toString(event: Event?, debug: Boolean): String {
         val action = if (unload) "unload" else "load"
-        return "slime world $action" + (worlds?.let { " of ${it.toString(event, debug)}" } ?: "")
+        return "slime world $action" + (worldNames?.let { " of ${it.toString(event, debug)}" } ?: "")
     }
 }
