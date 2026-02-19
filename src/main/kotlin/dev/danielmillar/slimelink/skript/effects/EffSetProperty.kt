@@ -1,6 +1,5 @@
 package dev.danielmillar.slimelink.skript.effects
 
-import ch.njol.skript.Skript
 import dev.danielmillar.slimelink.skript.registerEffect
 import ch.njol.skript.doc.Description
 import ch.njol.skript.doc.Examples
@@ -9,6 +8,7 @@ import ch.njol.skript.doc.Since
 import ch.njol.skript.lang.Effect
 import ch.njol.skript.lang.Expression
 import ch.njol.skript.lang.SkriptParser
+import ch.njol.skript.util.LiteralUtils
 import ch.njol.util.Kleenean
 import com.infernalsuite.asp.api.world.properties.SlimeProperty
 import com.infernalsuite.asp.api.world.properties.SlimePropertyMap
@@ -54,23 +54,37 @@ class EffSetProperty : Effect() {
         isDelayed: Kleenean?,
         parseResult: SkriptParser.ParseResult?
     ): Boolean {
-        property = expressions[0] as Expression<SlimePropertiesEnum>
-        propertyMap = expressions[1] as Expression<SlimePropertyMap>
-        value = expressions[2] as Expression<Any>
-        return true
+        val rawProperty = expressions[0] ?: return false
+        val rawPropertyMap = expressions[1] ?: return false
+        val rawValue = expressions[2] ?: return false
+
+        property = LiteralUtils.defendExpression<SlimePropertiesEnum>(rawProperty)
+        propertyMap = LiteralUtils.defendExpression<SlimePropertyMap>(rawPropertyMap)
+        value = LiteralUtils.defendExpression<Any>(rawValue)
+        return LiteralUtils.canInitSafely(property, propertyMap, value)
     }
 
     @Suppress("UNCHECKED_CAST")
     override fun execute(event: Event) {
         val prop = property.getSingle(event) ?: return
         val map = propertyMap.getSingle(event) ?: return
-        val newValue = value.getSingle(event) ?: return
+        val rawValue = value.getSingle(event) ?: return
+
+        val newValue = prop.coerce(rawValue)
+        if (newValue == null) {
+            this.error(
+                "Invalid value type for property ${prop.name}: expected ${prop.expectedTypeName()}, got ${rawValue::class.simpleName}"
+            )
+            return
+        }
 
         try {
             val slimeProp = prop.prop as SlimeProperty<Any, *>
             map.setValue(slimeProp, newValue)
-        } catch (e: ClassCastException) {
-            Skript.error("Invalid value type for property ${prop.name}: expected ${prop.dataType}")
+        } catch (e: IllegalArgumentException) {
+            this.error("Invalid value for property ${prop.name}: ${e.message ?: "failed validation"}")
+        } catch (_: ClassCastException) {
+            this.error("Invalid value type for property ${prop.name}: expected ${prop.expectedTypeName()}")
         }
     }
 }
