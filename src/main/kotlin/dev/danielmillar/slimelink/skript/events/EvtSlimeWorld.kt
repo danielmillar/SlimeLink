@@ -13,6 +13,7 @@ import com.infernalsuite.asp.api.AdvancedSlimePaperAPI
 import com.infernalsuite.asp.api.events.LoadSlimeWorldEvent
 import com.infernalsuite.asp.api.world.SlimeWorld
 import dev.danielmillar.slimelink.SlimeLink
+import dev.danielmillar.slimelink.events.SlimeWorldUnloadEvent
 import dev.danielmillar.slimelink.skript.registerEvent
 import org.bukkit.Bukkit
 import org.bukkit.World
@@ -51,7 +52,7 @@ class EvtSlimeWorld : SkriptEvent() {
             registerEvent(
                 EvtSlimeWorld::class.java,
                 "Slime World Load/Unload",
-                arrayOf(LoadSlimeWorldEvent::class.java, WorldUnloadEvent::class.java),
+                arrayOf(LoadSlimeWorldEvent::class.java, SlimeWorldUnloadEvent::class.java),
                 "slime world load[ing] [of %-worlds%]",
                 "slime world unload[ing] [of %-worlds%]"
             ) { EvtSlimeWorld() }
@@ -67,9 +68,14 @@ class EvtSlimeWorld : SkriptEvent() {
             ) { event -> event.slimeWorld }
 
             EventValues.registerEventValue(
-                WorldUnloadEvent::class.java,
+                SlimeWorldUnloadEvent::class.java,
+                World::class.java
+            ) { event -> event.world }
+
+            EventValues.registerEventValue(
+                SlimeWorldUnloadEvent::class.java,
                 SlimeWorld::class.java
-            ) { event -> loadedSlimeWorlds[event.world.name] }
+            ) { event -> event.slimeWorld }
 
             runCatching {
                 AdvancedSlimePaperAPI.instance().loadedWorlds.forEach { slimeWorld ->
@@ -86,13 +92,18 @@ class EvtSlimeWorld : SkriptEvent() {
                 @EventHandler(priority = EventPriority.MONITOR)
                 fun onWorldUnload(event: WorldUnloadEvent) {
                     if (!event.isCancelled) {
-                        Bukkit.getScheduler().runTask(
-                            SlimeLink.instance,
-                            Runnable { loadedSlimeWorlds.remove(event.world.name) }
+                        val slimeWorld = loadedSlimeWorlds[event.world.name] ?: return
+                        Bukkit.getPluginManager().callEvent(
+                            SlimeWorldUnloadEvent(event.world, slimeWorld)
                         )
+                        loadedSlimeWorlds.remove(event.world.name)
                     }
                 }
             }, SlimeLink.instance)
+        }
+
+        fun clearState() {
+            loadedSlimeWorlds.clear()
         }
     }
 
@@ -121,11 +132,8 @@ class EvtSlimeWorld : SkriptEvent() {
                 }
                 event.slimeWorld.bukkitWorld
             }
-            is WorldUnloadEvent -> {
+            is SlimeWorldUnloadEvent -> {
                 if (!unload) {
-                    return false
-                }
-                if (!loadedSlimeWorlds.containsKey(event.world.name)) {
                     return false
                 }
                 event.world
