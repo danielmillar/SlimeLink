@@ -6,7 +6,9 @@ import com.infernalsuite.asp.api.AdvancedSlimePaperAPI
 import dev.danielmillar.slimelink.config.ConfigManager
 import dev.danielmillar.slimelink.config.SourcesConfig
 import dev.danielmillar.slimelink.slime.SlimeLoaderType
+import dev.danielmillar.slimelink.skript.events.EvtSlimeWorld
 import dev.danielmillar.slimelink.skript.Types
+import dev.danielmillar.slimelink.util.SlimeWorldUtils
 import org.bukkit.plugin.java.JavaPlugin
 import org.skriptlang.skript.addon.SkriptAddon
 import org.skriptlang.skript.util.ClassLoader as SkriptClassLoader
@@ -76,6 +78,8 @@ class SlimeLink : JavaPlugin() {
 
     override fun onDisable() {
         SlimeLoaderType.clearCache()
+        SlimeWorldUtils.clearOperationState()
+        EvtSlimeWorld.clearState()
         if (::metrics.isInitialized) {
             metrics.shutdown()
         }

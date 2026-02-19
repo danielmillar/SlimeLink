@@ -14,16 +14,14 @@ import org.bukkit.scheduler.BukkitRunnable
 import java.io.File
 import java.io.IOException
 import java.util.*
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.ExecutionException
+import java.util.concurrent.*
 import kotlin.system.measureTimeMillis
 
 object SlimeWorldUtils {
 
 	private val worldNamePattern = Regex("^[a-z0-9/._-]+$")
 	private val operationsInProgress: MutableSet<String> = ConcurrentHashMap.newKeySet()
+	private const val SYNC_OPERATION_TIMEOUT_SECONDS = 30L
 
 	/**
 	 * Validates a world name to ensure it matches the regex pattern.
@@ -532,6 +530,10 @@ object SlimeWorldUtils {
 		locks.forEach(operationsInProgress::remove)
 	}
 
+	fun clearOperationState() {
+		operationsInProgress.clear()
+	}
+
 	private fun <T> runSyncAndWait(task: () -> T): T {
 		if (Bukkit.isPrimaryThread()) {
 			return task()
@@ -541,7 +543,7 @@ object SlimeWorldUtils {
 		var result: T? = null
 		var throwable: Throwable? = null
 
-		Bukkit.getScheduler().runTask(SlimeLink.instance, Runnable {
+		val scheduledTask = Bukkit.getScheduler().runTask(SlimeLink.instance, Runnable {
 			try {
 				result = task()
 			} catch (caught: Throwable) {
@@ -552,7 +554,13 @@ object SlimeWorldUtils {
 		})
 
 		try {
-			latch.await()
+			val completed = latch.await(SYNC_OPERATION_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+			if (!completed) {
+				scheduledTask.cancel()
+				throw IllegalStateException(
+					"Timed out after ${SYNC_OPERATION_TIMEOUT_SECONDS}s while waiting for a main-thread world operation."
+				)
+			}
 		} catch (interrupted: InterruptedException) {
 			Thread.currentThread().interrupt()
 			throw IllegalStateException("Interrupted while waiting for a main-thread world operation.", interrupted)
