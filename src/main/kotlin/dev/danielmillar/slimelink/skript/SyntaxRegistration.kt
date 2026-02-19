@@ -4,7 +4,10 @@ import ch.njol.skript.expressions.base.PropertyExpression
 import ch.njol.skript.lang.Condition
 import ch.njol.skript.lang.Effect
 import ch.njol.skript.lang.Expression
+import ch.njol.skript.lang.SkriptEvent
 import dev.danielmillar.slimelink.SlimeLink
+import org.bukkit.event.Event as BukkitEvent
+import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos
 import org.skriptlang.skript.registration.DefaultSyntaxInfos
 import org.skriptlang.skript.registration.SyntaxInfo
 import org.skriptlang.skript.registration.SyntaxRegistry
@@ -28,6 +31,24 @@ fun <E : Effect> registerEffect(effectClass: Class<E>, vararg patterns: String) 
             .addPatterns(*patterns)
             .build()
     )
+}
+
+fun <E : SkriptEvent> registerEvent(
+    eventClass: Class<E>,
+    name: String,
+    events: Array<Class<out BukkitEvent>>,
+    vararg patterns: String,
+    supplier: () -> E
+) {
+    val builder = BukkitSyntaxInfos.Event.builder(eventClass, name)
+        .addPatterns(*patterns)
+        .supplier(supplier)
+
+    for (event in events) {
+        builder.addEvent(event)
+    }
+
+    syntaxRegistry().register(BukkitSyntaxInfos.Event.KEY, builder.build())
 }
 
 fun <E : Expression<T>, T : Any> registerSimpleExpression(

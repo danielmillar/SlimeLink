@@ -259,3 +259,17 @@ command /slimelinktestsetup:
 		ensure slime world named {_base} does not exist in {_loader}
 		ensure slime world named {_clone} does not exist in {_loader}
 		send "SlimeLink test setup flow completed." to player
+
+# -------------------------------------------------
+# Slime world lifecycle events
+# -------------------------------------------------
+
+on slime world load:
+	broadcast "[SlimeLink] Slime world loaded: %event-world%"
+
+on slime world unload:
+	broadcast "[SlimeLink] Slime world unloaded: %event-world%"
+
+on slime world load of world "demo_world_eff":
+	set {lastDemoLoadedSlimeWorld} to event-slimeworld
+	send "[SlimeLink] demo_world_eff loaded (captured event-slimeworld)." to console
