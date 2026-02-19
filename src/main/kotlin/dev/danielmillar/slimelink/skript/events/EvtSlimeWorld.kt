@@ -39,7 +39,7 @@ import java.util.concurrent.ConcurrentHashMap
         "    broadcast \"Unloaded Slime world: %event-world%\"",
         "",
         "on slime world load of \"arena\":",
-        "    set {last_slime_world} to event-slimeworld"
+        "    set {last_slime_world} to event-world"
     ]
 )
 @Since("2.0.0")
