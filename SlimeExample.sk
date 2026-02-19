@@ -1,78 +1,261 @@
 # SlimeLink Example Skript
-# This Skript demonstrates how to create, load, unload, save, delete, and clone Slime worlds using the SlimeLink plugin.
+# Covers all current effects, expressions, and conditions provided by SlimeLink.
 
 on load:
 	if {-loader} is not set:
-		# Create a new Slime loader for type 'file', used for file-based world storage
 		set {-loader} to new slime loader from file
-
-		# Alternatively, you can create loaders for other storage types:
+		# Alternatives:
 		# set {-loader} to new slime loader from mysql
 		# set {-loader} to new slime loader from mongodb
 
 	if {-props} is not set:
-		# Create new Slime world properties with default settings
 		set {-props} to new slime world properties
+		set spawn x of {-props} to 0
+		set spawn y of {-props} to 100
+		set spawn z of {-props} to 0
+		set spawn yaw of {-props} to 0
+		set pvp of {-props} to false
+		set allow animals of {-props} to true
+		set allow monsters of {-props} to false
+		set difficulty of {-props} to "normal"
+		set environment of {-props} to "normal"
+		set world type of {-props} to "default"
+		set default biome of {-props} to "minecraft:plains"
 
-# Create a Slime world with the specified name, loader, and properties
-command /createslimeworld:
-	description: Creates a new Slime world
-	usage: /createslimeworld
+# -------------------------------------------------
+# Loader + Properties expressions
+# -------------------------------------------------
+
+command /slimeloaderdemo:
+	description: Shows loader + property expressions
+	usage: /slimeloaderdemo
 	trigger:
-		# Expression:
-		set {_world} to create slime world named "myworld" with {-loader} using {-props}
+		set {_fileLoader} to new slime loader from file
+		set {_mysqlLoader} to new slime loader from mysql
+		set {_mongoLoader} to new slime loader from mongodb
 
-		# Effect:
-		create slime world named "myworld" with {-loader} using {-props}
+		set {_existsBool} to whether slime world named "demo_world" exists in {-loader}
+		set {_stored::*} to all stored slime worlds in {-loader}
+		set {_loaded::*} to all loaded slime worlds with {-loader}
+		set {_spawnX} to spawn x of {-props}
+		set {_pvp} to pvp of {-props}
 
-# Teleport the player to the Slime world to test it
-command /testslimeworld:
-	description: Tests the Slime world by teleporting the player there
-	usage: /testslimeworld
+		send "Created 3 loaders (file/mysql/mongodb expressions)." to player
+		send "demo_world exists in default loader? %{_existsBool}%" to player
+		send "Stored worlds count: %{_stored::*}%" to player
+		send "Loaded worlds count: %{_loaded::*}%" to player
+		send "Current props: spawn_x=%{_spawnX}%, pvp=%{_pvp}%" to player
+
+# -------------------------------------------------
+# Create world split into expression vs effect
+# -------------------------------------------------
+
+command /createworldexpression:
+	description: Creates a world using create-world expression
+	usage: /createworldexpression
 	trigger:
-		teleport player to location(0, 100, 0, world "myworld")
+		set {-createdWorldObject} to create slime world named "demo_world_expr" with {-loader} using {-props}
+		if {-createdWorldObject} is set:
+			send "Created in-memory world object: %{ -createdWorldObject}%" to player
 
-# Unload the Slime world without saving, teleporting players to a safe location
-command /unloadslimeworld:
-	description: Unloads the Slime world
-	usage: /unloadslimeworld
+command /createworldeffect:
+	description: Creates and saves a world using create-world effect
+	usage: /createworldeffect
 	trigger:
-		unload slime world "myworld" without saving teleporting players to location(0, 150, 0, world "world")
+		create slime world named "demo_world_eff" with {-loader} using {-props}
+		send "Create effect dispatched for demo_world_eff." to player
 
-# Load the Slime world from specified loader
-command /loadslimeworld:
-	description: Loads the Slime world
-	usage: /loadslimeworld
+# -------------------------------------------------
+# Load effects (name + object)
+# -------------------------------------------------
+
+command /loadworldbyname:
+	description: Loads world by name + loader
+	usage: /loadworldbyname
 	trigger:
-		load slime world "myworld" with {-loader}
+		load slime world "demo_world_eff" with {-loader} using {-props}
+		send "Load-by-name dispatched for demo_world_eff." to player
 
-# Save the Slime world to its loader
+command /loadworldfromobject:
+	description: Loads a SlimeWorld object using the object load effect
+	usage: /loadworldfromobject
+	trigger:
+		if {-createdWorldObject} is not set:
+			send "No world object found. Run /createworldexpression first." to player
+			stop
+		load slime world {-createdWorldObject}
+		send "Load-by-object executed." to player
+
+# -------------------------------------------------
+# Clone (effect + expression)
+# -------------------------------------------------
+
+command /cloneworldeffect:
+	description: Clones world using clone effect
+	usage: /cloneworldeffect
+	trigger:
+		clone slime world "demo_world_eff" to "demo_world_eff_clone" with {-loader} using {-props}
+		send "Clone effect dispatched." to player
+
+command /cloneworldexpression:
+	description: Clones world using clone expression and stores object
+	usage: /cloneworldexpression
+	trigger:
+		set {-clonedWorldObject} to clone slime world "demo_world_eff" to "demo_world_expr_clone" with {-loader} using {-props}
+		if {-clonedWorldObject} is set:
+			send "Clone expression created object: %{ -clonedWorldObject}%" to player
+
+# -------------------------------------------------
+# Fetch/loaded checks + existence condition
+# -------------------------------------------------
+
+command /checkslimeworlds:
+	description: Demonstrates fetch expression + conditions
+	usage: /checkslimeworlds
+	trigger:
+		set {_bukkitWorld} to fetch slime world named "demo_world_eff"
+		if {_bukkitWorld} is set:
+			send "Fetched Bukkit world: %{_bukkitWorld}%" to player
+		else:
+			send "demo_world_eff is not currently loaded in Bukkit." to player
+
+		if slime world named "demo_world_eff" is loaded:
+			send "Condition says demo_world_eff is loaded." to player
+		else:
+			send "Condition says demo_world_eff is not loaded." to player
+
+		if slime world named "demo_world_eff" exists in {-loader}:
+			send "Condition says demo_world_eff exists in storage." to player
+		else:
+			send "Condition says demo_world_eff is missing in storage." to player
+
+# -------------------------------------------------
+# Save/Unload/Delete effects
+# -------------------------------------------------
+
 command /saveslimeworld:
-	description: Saves the Slime world
+	description: Saves demo_world_eff
 	usage: /saveslimeworld
 	trigger:
-		save slime world "myworld"
+		save slime world "demo_world_eff"
+		send "Save dispatched." to player
 
-# Delete the Slime world from its loader
+command /unloadslimeworld:
+	description: Unloads demo_world_eff without saving and teleports players away
+	usage: /unloadslimeworld
+	trigger:
+		unload slime world "demo_world_eff" without saving teleporting players to location(0, 100, 0, world "world")
+		send "Unload dispatched." to player
+
 command /deleteslimeworld:
-	description: Deletes the Slime world
+	description: Deletes demo_world_eff from storage
 	usage: /deleteslimeworld
 	trigger:
-		delete slime world "myworld" from {-loader} 
+		delete slime world "demo_world_eff" from {-loader}
+		send "Delete dispatched." to player
 
-# Clone the Slime world to a new world with a different name
-command /cloneslimeworld:
-	description: Clones the Slime world
-	usage: /cloneslimeworld
-	trigger:
-		clone slime world "myworld" to "myworld_clone" with {-loader} using {-props}
+# -------------------------------------------------
+# Import effect
+# -------------------------------------------------
 
-# Check if the Slime world is loaded
-command /worldloaded:
-	description: Checks if the Slime world is loaded
-	usage: /worldloaded
+command /importslimeworld <text> <text>:
+	description: Imports a vanilla world folder as a slime world
+	usage: /importslimeworld <vanilla-folder-name> <slime-world-name>
 	trigger:
-		if slime world named "myworld" is loaded:
-			broadcast "Slime world 'myworld' is loaded!"
-		else:
-			broadcast "Slime world 'myworld' is not loaded!"
+		import vanilla world arg-1 as arg-2 with {-loader}
+		send "Import dispatched: %arg-1% -> %arg-2%" to player
+
+# -------------------------------------------------
+# Assert/ensure effect for world existence
+# -------------------------------------------------
+
+command /assertslimeexists <text>:
+	description: Asserts world exists in loader
+	usage: /assertslimeexists <world-name>
+	trigger:
+		assert slime world named arg-1 exists in {-loader}
+		send "Assert checked for %arg-1%." to player
+
+command /assertslimenotexists <text>:
+	description: Asserts world does not exist in loader
+	usage: /assertslimenotexists <world-name>
+	trigger:
+		ensure slime world named arg-1 does not exist in {-loader}
+		send "Ensure checked for %arg-1%." to player
+
+# -------------------------------------------------
+# End-to-end test pipeline with delays
+# -------------------------------------------------
+
+command /slimelinktestsetup:
+	description: Runs a full SlimeLink test flow with delays
+	usage: /slimelinktestsetup
+	trigger:
+		set {_base} to "sl_test_world"
+		set {_clone} to "sl_test_world_clone"
+		set {_loader} to new slime loader from file
+		set {_props} to new slime world properties
+		set spawn x of {_props} to 0
+		set spawn y of {_props} to 100
+		set spawn z of {_props} to 0
+
+		send "[1/14] Initial checks..." to player
+		verify slime world named {_base} does not exist in {_loader}
+		verify slime world named {_clone} does not exist in {_loader}
+		wait 1 second
+
+		send "[2/14] Creating base world..." to player
+		create slime world named {_base} with {_loader} using {_props}
+		wait 3 seconds
+
+		send "[3/14] Asserting base exists in loader..." to player
+		assert slime world named {_base} exists in {_loader}
+		wait 1 second
+
+		send "[4/14] Loading base world..." to player
+		load slime world {_base} with {_loader} using {_props}
+		wait 4 seconds
+
+		send "[5/14] Save base world..." to player
+		save slime world {_base}
+		wait 2 seconds
+
+		send "[6/14] Clone base world..." to player
+		clone slime world {_base} to {_clone} with {_loader} using {_props}
+		wait 3 seconds
+
+		send "[7/14] Assert clone exists in loader..." to player
+		assert slime world named {_clone} exists in {_loader}
+		wait 1 second
+
+		send "[8/14] Load clone world..." to player
+		load slime world {_clone} with {_loader} using {_props}
+		wait 4 seconds
+
+		send "[9/14] Check loaded condition..." to player
+		if slime world named {_base} is loaded:
+			send "Base world is loaded." to player
+		if slime world named {_clone} is loaded:
+			send "Clone world is loaded." to player
+		wait 1 second
+
+		send "[10/14] Unload clone..." to player
+		unload slime world {_clone} without saving teleporting players to location(0, 100, 0, world "world")
+		wait 3 seconds
+
+		send "[11/14] Delete clone..." to player
+		delete slime world {_clone} from {_loader}
+		wait 2 seconds
+
+		send "[12/14] Unload base..." to player
+		unload slime world {_base} without saving teleporting players to location(0, 100, 0, world "world")
+		wait 3 seconds
+
+		send "[13/14] Delete base..." to player
+		delete slime world {_base} from {_loader}
+		wait 2 seconds
+
+		send "[14/14] Final assertions..." to player
+		ensure slime world named {_base} does not exist in {_loader}
+		ensure slime world named {_clone} does not exist in {_loader}
+		send "SlimeLink test setup flow completed." to player
